@@ -14,3 +14,19 @@ export type MovieSearchPage = {
   page: number;
   pageSize: number;
 };
+
+export type MovieDetail = {
+  id: string; // imdbID, ex.: "tt0133093"
+  title: string;
+  year: string | null;
+  runtime: string | null;
+  genres: string[];
+  director: string | null;
+  actors: string | null;
+  plot: string | null;
+  posterUrl: string | null;
+  /** Preenchido quando integrado ao backend (FRONT-06 / BACK-05); null enquanto provisório ou sem notas. */
+  ratingAvg: number | null;
+  ratingCount: number;
+};
+

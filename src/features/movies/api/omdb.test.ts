@@ -7,7 +7,13 @@ const envMock = vi.hoisted(() => ({
 }));
 vi.mock("@/shared/config/env", () => ({ env: envMock }));
 
-import { OMDB_PAGE_SIZE, searchMovies, toMovieSummary } from "./omdb";
+import {
+  OMDB_PAGE_SIZE,
+  getMovieById,
+  searchMovies,
+  toMovieDetail,
+  toMovieSummary,
+} from "./omdb";
 
 function mockFetch(body: unknown, init: { ok?: boolean; status?: number } = {}) {
   const fetchMock = vi.fn().mockResolvedValue({
@@ -117,3 +123,141 @@ describe("searchMovies", () => {
     await expect(promise).rejects.toMatchObject({ code: "network" });
   });
 });
+
+describe("toMovieDetail", () => {
+  it("converte metadados completos da OMDb para MovieDetail", () => {
+    const detail = toMovieDetail({
+      imdbID: "tt0133093",
+      Title: "The Matrix",
+      Year: "1999",
+      Runtime: "136 min",
+      Genre: "Action, Sci-Fi",
+      Director: "Lana Wachowski, Lilly Wachowski",
+      Actors: "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss",
+      Plot: "When a beautiful stranger leads computer hacker Neo...",
+      Poster: "https://m.media-amazon.com/poster.jpg",
+    });
+
+    expect(detail).toEqual({
+      id: "tt0133093",
+      title: "The Matrix",
+      year: "1999",
+      runtime: "136 min",
+      genres: ["Action", "Sci-Fi"],
+      director: "Lana Wachowski, Lilly Wachowski",
+      actors: "Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss",
+      plot: "When a beautiful stranger leads computer hacker Neo...",
+      posterUrl: "https://m.media-amazon.com/poster.jpg",
+      ratingAvg: null,
+      ratingCount: 0,
+    });
+  });
+
+  it('normaliza campos "N/A" ou vazios para null e genres para []', () => {
+    const detail = toMovieDetail({
+      imdbID: "tt9999999",
+      Title: "Filme Obscuro",
+      Year: "N/A",
+      Runtime: "N/A",
+      Genre: "N/A",
+      Director: "N/A",
+      Actors: "N/A",
+      Plot: "N/A",
+      Poster: "N/A",
+    });
+
+    expect(detail).toEqual({
+      id: "tt9999999",
+      title: "Filme Obscuro",
+      year: null,
+      runtime: null,
+      genres: [],
+      director: null,
+      actors: null,
+      plot: null,
+      posterUrl: null,
+      ratingAvg: null,
+      ratingCount: 0,
+    });
+  });
+
+  it("trata campos indefinidos ou com espaços em branco", () => {
+    const detail = toMovieDetail({
+      imdbID: "tt123",
+      Title: "Sem Dados",
+      Year: "  ",
+      Genre: " , Action, N/A ",
+    });
+
+    expect(detail.year).toBeNull();
+    expect(detail.genres).toEqual(["Action"]);
+    expect(detail.director).toBeNull();
+    expect(detail.plot).toBeNull();
+    expect(detail.posterUrl).toBeNull();
+  });
+});
+
+describe("getMovieById", () => {
+  beforeEach(() => {
+    envMock.omdbApiKey = "test-key";
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("busca filme com parâmetros i e plot=full e retorna MovieDetail", async () => {
+    const fetchMock = mockFetch({
+      Response: "True",
+      imdbID: "tt0133093",
+      Title: "The Matrix",
+      Year: "1999",
+      Runtime: "136 min",
+      Genre: "Action, Sci-Fi",
+      Director: "Lana Wachowski, Lilly Wachowski",
+      Actors: "Keanu Reeves",
+      Plot: "Neo descobre a Matrix.",
+      Poster: "https://poster.jpg",
+    });
+
+    const result = await getMovieById("tt0133093");
+
+    const url = fetchMock.mock.calls[0][0] as URL;
+    expect(url.searchParams.get("i")).toBe("tt0133093");
+    expect(url.searchParams.get("plot")).toBe("full");
+    expect(result).not.toBeNull();
+    expect(result?.title).toBe("The Matrix");
+    expect(result?.genres).toEqual(["Action", "Sci-Fi"]);
+  });
+
+  it('retorna null quando a OMDb responde com Response: "False"', async () => {
+    mockFetch({
+      Response: "False",
+      Error: "Incorrect IMDb ID.",
+    });
+
+    const result = await getMovieById("tt0000000");
+    expect(result).toBeNull();
+  });
+
+  it('retorna null para erro "Movie not found!"', async () => {
+    mockFetch({
+      Response: "False",
+      Error: "Movie not found!",
+    });
+
+    const result = await getMovieById("tt9999999");
+    expect(result).toBeNull();
+  });
+
+  it("lança erro de configuração quando a chave é recusada", async () => {
+    mockFetch({
+      Response: "False",
+      Error: "Invalid API key!",
+    });
+
+    await expect(getMovieById("tt0133093")).rejects.toMatchObject({
+      code: "config",
+    });
+  });
+});
+

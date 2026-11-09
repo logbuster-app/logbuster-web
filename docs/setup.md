@@ -16,7 +16,7 @@ sudo pacman -S nodejs npm
 ```bash
 npm install
 cp .env.example .env.local
-# edite .env.local e preencha NEXT_PUBLIC_OMDB_API_KEY
+# edite .env.local e preencha OMDB_API_KEY
 npm run dev
 ```
 
@@ -26,8 +26,8 @@ A aplicação sobe em <http://localhost:3000>.
 
 | Variável | Descrição | Padrão |
 | --- | --- | --- |
-| `NEXT_PUBLIC_OMDB_API_KEY` | Chave da OMDb | vazio (a busca mostra erro de configuração) |
-| `NEXT_PUBLIC_OMDB_BASE_URL` | URL base da OMDb | `https://www.omdbapi.com` |
+| `OMDB_API_KEY` | Chave da OMDb | vazio (a busca mostra erro de configuração) |
+| `OMDB_BASE_URL` | URL base da OMDb | `https://www.omdbapi.com` |
 
 > Variáveis `NEXT_PUBLIC_*` vão para o bundle do navegador. Isso é aceitável aqui porque a chave da OMDb é gratuita e a consulta é feita pelo front, como definido no escopo.
 

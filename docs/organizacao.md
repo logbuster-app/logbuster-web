@@ -49,7 +49,7 @@ Regras de dependência:
 | Task | Responsável | Feature | Onde criar |
 | --- | --- | --- | --- |
 | Task 1: busca de filmes (OMDb) | Marcos | `movies` | Pronto |
-| Task 2: visualização de filme específico | Elton | `movies` | `features/movies/components/MovieDetail.tsx` e rota `src/app/movies/[id]/page.tsx`; API `getMovieById` em `features/movies/api/omdb.ts` |
+| Task 2: visualização de filme específico | Elton | `movies` | `features/movies/components/detail/MovieDetail.tsx` e rota `src/app/movies/[id]/page.tsx`; API `getMovieById` em `features/movies/api/omdb.ts` |
 | Task 2 (nota do nosso backend) | Elton | `reviews` | `features/reviews/api/` (cliente da nota média) |
 | Task 3: visualização de avaliações | Elton | `reviews` | `features/reviews/components/ReviewList.tsx`, `ReviewCard.tsx`, interações em `hooks/` |
 | Task 4: cadastro de avaliações | Thyago | `reviews` | `features/reviews/components/ReviewModal.tsx`, POST em `features/reviews/api/` |

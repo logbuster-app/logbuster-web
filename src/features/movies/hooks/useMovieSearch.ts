@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ApiError } from "@/shared/lib/errors";
-import { searchMovies } from "../api/omdb";
+import { searchMovies } from "../api/moviesClient";
 import type { MovieSummary } from "../types";
 
 type Result = {

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { MovieSummary } from "../types";
+import type { MovieSummary } from "../../types";
 import { MovieGrid } from "./MovieGrid";
 
 const movies: MovieSummary[] = [

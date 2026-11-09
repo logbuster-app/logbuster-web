@@ -7,7 +7,7 @@ Front-end do LogBuster (Next.js, TypeScript, Tailwind). Documentação completa 
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha NEXT_PUBLIC_OMDB_API_KEY
+cp .env.example .env.local   # preencha OMDB_API_KEY
 npm run dev                  # http://localhost:3000
 npm run docs                 # documentação (Docsify)
 npm run check                # lint + tipos + testes com cobertura
