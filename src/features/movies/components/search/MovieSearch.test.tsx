@@ -7,20 +7,15 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: nav.push }),
   useSearchParams: () => new URLSearchParams(nav.query ? `q=${nav.query}` : ""),
 }));
-vi.mock("@/shared/config/env", () => ({
-  env: { omdbApiKey: "k", omdbBaseUrl: "https://www.omdbapi.com" },
-}));
 
 import { MovieSearch } from "./MovieSearch";
 
 function item(n: number) {
-  return {
-    Title: `Filme ${n}`,
-    Year: "2000",
-    imdbID: `tt${n}`,
-    Type: "movie",
-    Poster: "N/A",
-  };
+  return { id: `tt${n}`, title: `Filme ${n}`, year: "2000", posterUrl: null };
+}
+
+function pageOf(movies: ReturnType<typeof item>[], total: number, page = 1) {
+  return { movies, total, page, pageSize: 10 };
 }
 
 function respond(body: unknown) {
@@ -58,7 +53,7 @@ describe("MovieSearch", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        respond({ Response: "True", Search: [item(1), item(2)], totalResults: "2" }),
+        respond(pageOf([item(1), item(2)], 2)),
       ),
     );
     render(<MovieSearch />);
@@ -74,7 +69,7 @@ describe("MovieSearch", () => {
     nav.query = "zzz";
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(respond({ Response: "False", Error: "Movie not found!" })),
+      vi.fn().mockResolvedValue(respond(pageOf([], 0))),
     );
     render(<MovieSearch />);
 
@@ -94,10 +89,10 @@ describe("MovieSearch", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(
-        respond({ Response: "True", Search: [item(1)], totalResults: "2" }),
+        respond(pageOf([item(1)], 2)),
       )
       .mockResolvedValueOnce(
-        respond({ Response: "True", Search: [item(2)], totalResults: "2" }),
+        respond(pageOf([item(2)], 2, 2)),
       );
     vi.stubGlobal("fetch", fetchMock);
     render(<MovieSearch />);
@@ -109,8 +104,7 @@ describe("MovieSearch", () => {
     await waitFor(() =>
       expect(screen.queryByRole("button", { name: "Carregar mais" })).not.toBeInTheDocument(),
     );
-    const secondUrl = fetchMock.mock.calls[1][0] as URL;
-    expect(secondUrl.searchParams.get("page")).toBe("2");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/movies/search?q=filme&page=2");
   });
 
   it("avisa quando falha ao carregar mais, mantendo os resultados", async () => {
@@ -120,7 +114,7 @@ describe("MovieSearch", () => {
       vi
         .fn()
         .mockResolvedValueOnce(
-          respond({ Response: "True", Search: [item(1)], totalResults: "2" }),
+          respond(pageOf([item(1)], 2)),
         )
         .mockRejectedValueOnce(new TypeError("offline")),
     );

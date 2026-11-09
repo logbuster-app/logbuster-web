@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
-import { useMovieSearch } from "../hooks/useMovieSearch";
+import { useMovieSearch } from "../../hooks/useMovieSearch";
 import { MovieGrid } from "./MovieGrid";
 import { SearchBar } from "./SearchBar";
 
@@ -34,7 +34,13 @@ export function MovieSearch() {
         />
       )}
       {status === "loading" && <Spinner label="Buscando filmes" />}
-      {status === "error" && <StateMessage tone="danger" title="Não foi possível buscar" description={error ?? undefined} />}
+      {status === "error" && (
+        <StateMessage
+          tone="danger"
+          title="Não foi possível buscar"
+          description={error ?? undefined}
+        />
+      )}
       {status === "success" && movies.length === 0 && (
         <StateMessage
           title="Nenhum filme encontrado"

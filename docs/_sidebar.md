@@ -6,5 +6,7 @@
 - [Integração com a OMDb](integracao-omdb.md)
 - Features
   - [Busca de filmes](features/busca-de-filmes.md)
+  - [Ficha do filme](features/detalhe-de-filme.md)
+  - [Avaliações e interações](features/avaliacoes-e-interacoes.md)
 - [Guia para continuar o front](continuando.md)
 - [Fluxo de entrega (PR)](contribuindo.md)

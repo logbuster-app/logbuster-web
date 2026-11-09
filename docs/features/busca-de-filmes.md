@@ -13,10 +13,10 @@
 
 | Arquivo | Papel |
 | --- | --- |
-| `components/MovieSearch.tsx` | Tela completa; lê `?q=` e orquestra os estados |
-| `components/SearchBar.tsx` | Formulário de busca (acessível, ignora texto vazio) |
-| `components/MovieGrid.tsx` | Grade responsiva de filmes |
-| `components/MovieCard.tsx` | Card de um filme; **reutilizável** em outras telas |
+| `components/search/MovieSearch.tsx` | Tela completa; lê `?q=` e orquestra os estados |
+| `components/search/SearchBar.tsx` | Formulário de busca (acessível, ignora texto vazio) |
+| `components/search/MovieGrid.tsx` | Grade responsiva de filmes |
+| `components/search/MovieCard.tsx` | Card de um filme; **reutilizável** em outras telas |
 | `hooks/useMovieSearch.ts` | Busca, paginação e status (`idle`, `loading`, `success`, `error`) |
 
 ## Pontos de extensão

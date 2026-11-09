@@ -7,7 +7,8 @@ src/
   app/                  Rotas e layout (finas: só compõem features)
   features/
     movies/
-      api/              Acesso à API externa e mappers
+      api/              Services da feature: chamadas HTTP e mappers
+      server.ts         Entrada só-servidor (usa segredos); opcional
       components/       Componentes da feature
       hooks/            Estado e efeitos da feature
       types.ts          Modelo de domínio
@@ -16,7 +17,8 @@ src/
   shared/
     components/         UI genérica (SiteHeader, Spinner, StateMessage)
     config/             Variáveis de ambiente
-    lib/                Utilitários (ApiError)
+    api/                Instâncias do cliente HTTP (internalApi, backendApi)
+    lib/                Utilitários (apiClient, ApiError, visitor)
   test/                 Setup dos testes
 docs/                   Esta documentação (Docsify)
 ```
@@ -30,6 +32,27 @@ docs/                   Esta documentação (Docsify)
 5. **Modelo de domínio próprio.** O front não usa o formato cru da API externa; converte com um mapper (ex.: `toMovieSummary`). Assim, trocar a OMDb por outra fonte afeta só a camada `api`.
 6. **Testes ao lado do código** (`Arquivo.test.tsx`).
 7. **Estilo só com tokens** (veja [Identidade visual](identidade-visual.md)).
+
+## Camada de services (acesso a dados)
+
+Equivale ao `HttpClient` + services do Angular:
+
+```text
+componente  →  hook (estado)  →  service da feature (api/)  →  cliente em shared/api  →  rede
+```
+
+1. **`shared/lib/apiClient.ts`** é o único lugar que chama `fetch`: URL base, query, headers, JSON, cancelamento e conversão de falhas em `ApiError` (`code` + `status`). Aceita headers dinâmicos e `onError` (interceptors).
+2. **`shared/api/clients.ts`** cria as instâncias: `internalApi` (rotas `/api/*` do Next) e `backendApi` (FastAPI, já com `X-Visitor-Id`).
+3. **Cada feature tem seus services em `api/`**: funções que conhecem só os endpoints da feature, chamam `internalApi`/`backendApi` e devolvem o **modelo de domínio** (via mapper). Nova consulta = nova função aqui.
+4. **Componentes e hooks nunca usam `fetch`** nem o `apiClient` direto: só os services.
+5. **Segredos só no servidor.** A OMDb usa `OMDB_API_KEY` (sem `NEXT_PUBLIC_`) e é acessada por `features/movies/server.ts` (Route Handlers e Server Components). O navegador passa por `/api/movies/*`.
+
+### Como adicionar uma consulta nova
+
+1. Tipo de domínio em `features/<x>/types.ts`.
+2. Função em `features/<x>/api/` usando `backendApi` ou `internalApi`, com mapper e mensagens de erro em português.
+3. Teste ao lado (`*.test.ts`), mockando `fetch`.
+4. Hook em `hooks/` só se precisar de estado; depois, o componente.
 
 ## Componentes de cliente e de servidor
 

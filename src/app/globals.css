@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /*
- * Design tokens do LogBuster (PROVISÓRIOS até a SPEC SDD de identidade visual).
- * Regra: telas usam apenas tokens semânticos (bg-surface, text-muted, bg-primary...),
+ * Design tokens oficiais do LogBuster (SPEC-UI-01).
+ * Regra: telas usam exclusivamente tokens semânticos (bg-surface, text-muted, bg-primary...),
  * nunca hex solto. Para mudar a identidade, edite somente este bloco.
  */
 @theme {
