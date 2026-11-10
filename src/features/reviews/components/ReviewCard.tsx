@@ -99,7 +99,7 @@ export function ReviewCard({
           disabled={isInteracting}
           onClick={() => onToggleInteraction?.(review.id, "well_argued")}
           aria-pressed={isWellArguedActive}
-          className={`inline-flex h-9 items-center gap-2 rounded-card border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:opacity-50 ${
+          className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-card border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:cursor-not-allowed disabled:opacity-50 ${
             isWellArguedActive
               ? "border-primary-text bg-primary/20 text-primary-text"
               : "border-border bg-surface-raised text-muted hover:border-primary-text/60 hover:text-foreground"
@@ -116,7 +116,7 @@ export function ReviewCard({
           disabled={isInteracting}
           onClick={() => onToggleInteraction?.(review.id, "like")}
           aria-pressed={isLikeActive}
-          className={`inline-flex h-9 items-center gap-2 rounded-card border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:opacity-50 ${
+          className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-card border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:cursor-not-allowed disabled:opacity-50 ${
             isLikeActive
               ? "border-primary-text bg-primary/20 text-primary-text"
               : "border-border bg-surface-raised text-muted hover:border-primary-text/60 hover:text-foreground"
@@ -127,22 +127,23 @@ export function ReviewCard({
           <span className="font-semibold">{review.counts.like}</span>
         </button>
 
-        {/* Spoiler */}
-        <button
-          type="button"
-          disabled={isInteracting}
-          onClick={() => onToggleInteraction?.(review.id, "spoiler")}
-          aria-pressed={isSpoilerActive}
-          className={`inline-flex h-9 items-center gap-2 rounded-card border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:opacity-50 ${
-            isSpoilerActive
-              ? "border-warning bg-warning/15 text-warning"
-              : "border-border bg-surface-raised text-muted hover:border-warning/60 hover:text-foreground"
-          }`}
-        >
-          <span aria-hidden="true">⚠️</span>
-          <span>Spoiler</span>
-          <span className="font-semibold">{review.counts.spoiler}</span>
-        </button>
+        {!review.isSpoiler ? (
+          <button
+            type="button"
+            disabled={isInteracting}
+            onClick={() => onToggleInteraction?.(review.id, "spoiler")}
+            aria-pressed={isSpoilerActive}
+            className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-card border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:cursor-not-allowed disabled:opacity-50 ${
+              isSpoilerActive
+                ? "border-warning bg-warning/15 text-warning"
+                : "border-border bg-surface-raised text-muted hover:border-warning/60 hover:text-foreground"
+            }`}
+          >
+            <span aria-hidden="true">⚠️</span>
+            <span>Spoiler</span>
+            <span className="font-semibold">{review.counts.spoiler}</span>
+          </button>
+        ) : null}
       </div>
     </article>
   );

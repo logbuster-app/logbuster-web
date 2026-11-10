@@ -5,6 +5,10 @@ import Link from "next/link";
 import React from "react";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
+import {
+  MovieRatingProvider,
+  useMovieRatingContext,
+} from "@/shared/contexts/MovieRatingContext";
 import { useMovieDetail } from "../../hooks/useMovieDetail";
 import type { MovieDetail as MovieDetailType } from "../../types";
 
@@ -15,7 +19,31 @@ export type MovieDetailProps = {
 };
 
 export function MovieDetail({ movieId, initialMovie, children }: MovieDetailProps) {
+  return (
+    <MovieRatingProvider>
+      <MovieDetailContent
+        movieId={movieId}
+        initialMovie={initialMovie}
+      >
+        {children}
+      </MovieDetailContent>
+    </MovieRatingProvider>
+  );
+}
+
+function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProps) {
   const { movie, status, error } = useMovieDetail(movieId, initialMovie);
+  const ratingContext = useMovieRatingContext();
+  const currentRating =
+    movie && ratingContext?.rating?.movieId === movie.id
+      ? ratingContext.rating
+      : movie
+        ? {
+            movieId: movie.id,
+            averageRating: movie.ratingAvg,
+            reviewsCount: movie.ratingCount,
+          }
+        : null;
 
   return (
     <div className="space-y-6">
@@ -135,13 +163,13 @@ export function MovieDetail({ movieId, initialMovie, children }: MovieDetailProp
                 </p>
                 <p className="text-muted">
                   <span className="text-muted">Nota LogBuster</span>{" "}
-                  {movie.ratingCount > 0 && movie.ratingAvg !== null ? (
+                  {currentRating && currentRating.reviewsCount > 0 && currentRating.averageRating !== null ? (
                     <span className="text-secondary font-medium">
-                      <span>{movie.ratingAvg.toFixed(1)}</span>
+                      <span>{currentRating.averageRating.toFixed(1)}</span>
                       <span>
                         {" "}
-                        / 5 ({movie.ratingCount}{" "}
-                        {movie.ratingCount === 1 ? "avaliação" : "avaliações"})
+                        / 5 ({currentRating.reviewsCount}{" "}
+                        {currentRating.reviewsCount === 1 ? "avaliação" : "avaliações"})
                       </span>
                     </span>
                   ) : (

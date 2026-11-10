@@ -71,6 +71,29 @@ describe("useMovieReviews", () => {
     expect(result.current.reviews).toEqual([]);
   });
 
+  it("insere a avaliação criada e atualiza o total sem buscar novamente", async () => {
+    vi.spyOn(reviewsApi, "fetchMovieReviews").mockResolvedValueOnce(samplePage);
+    const { result } = renderHook(() => useMovieReviews("tt0133093"));
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("success");
+    });
+
+    const createdReview: Review = {
+      ...sampleReview,
+      id: "r2",
+      authorName: "Ana",
+      rating: 5,
+      content: "Uma ótima análise recém-publicada.",
+    };
+
+    act(() => result.current.addReview(createdReview));
+
+    expect(result.current.reviews).toEqual([createdReview, sampleReview]);
+    expect(result.current.total).toBe(2);
+    expect(result.current.status).toBe("success");
+  });
+
   it("retorna status error quando a busca falha", async () => {
     vi.spyOn(reviewsApi, "fetchMovieReviews").mockRejectedValueOnce(
       new Error("Falha de conexão"),

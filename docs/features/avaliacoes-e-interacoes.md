@@ -4,6 +4,8 @@
 
 Exibe na ficha do filme (`/movies/[id]`) a lista de análises críticas da comunidade vindas do Back-end (`logbuster-api`), permitindo ordená-las com foco na qualidade do argumento e reagir às análises com votos qualificados e proteção de spoilers.
 
+O cadastro de novas avaliações está descrito em [Cadastro de avaliação](cadastro-de-avaliacao.md). `NEXT_PUBLIC_USE_API_MOCKS=true` mantém toda a feature no adapter local; `false` usa os endpoints reais para leitura, interações, criação e média agregada.
+
 - **Ordenação Central por Mérito (RN-01):** Ao carregar a seção, as avaliações vêm ordenadas por padrão por **`well_argued`** (*"Mais bem argumentadas"*), materializando o diferencial do produto. O usuário pode alternar no seletor entre:
   - `well_argued` — *Mais bem argumentadas* **(padrão)**
   - `most_liked` — *Mais curtidas*
@@ -26,9 +28,12 @@ Exibe na ficha do filme (`/movies/[id]`) a lista de análises críticas da comun
 | `src/features/reviews/components/ReviewList.tsx` | Contêiner da seção, orquestrando estados e seletor de ordenação |
 | `src/features/reviews/components/ReviewCard.tsx` | Card da avaliação com proteção de spoiler e botões de toggle |
 | `src/features/reviews/components/ReviewSortSelector.tsx` | Seletor acessível de ordenação |
+| `src/features/reviews/components/ReviewModal.tsx` | Formulário de cadastro com validação e estados de envio |
+| `src/features/reviews/components/StarRatingInput.tsx` | Seletor de nota de `0,5` a `5,0` |
+| `src/features/reviews/components/HighlightPicker.tsx` | Seleção de até dois destaques |
 | `src/features/reviews/components/StarRating.tsx` | Renderizador acessível de estrelas (`0,5–5,0`) com valor numérico |
 | `src/features/reviews/hooks/useMovieReviews.ts` | Hook de busca, ordenação e registro de interações |
-| `src/features/reviews/api/reviews.ts` | Cliente HTTP integrado ao backend com conversão `snake_case` → `camelCase` |
+| `src/features/reviews/api/reviews.ts` | Services HTTP de leitura, interação, criação e média, com conversão `snake_case` → `camelCase` |
 | `src/features/reviews/api/reviews.mock.ts` | Provedor mockado em memória para testes e desenvolvimento isolado |
 | `src/features/reviews/types.ts` | Tipos de domínio, rótulos de destaques em português e opções de ordenação |
 | `src/shared/lib/visitor.ts` | Gerador e recuperador do `X-Visitor-Id` |
@@ -37,8 +42,9 @@ Exibe na ficha do filme (`/movies/[id]`) a lista de análises críticas da comun
 
 - `visitor.test.ts`: Criação, persistência e fallback de UUID do visitante.
 - `reviews.mock.test.ts`: Todas as 5 opções de ordenação, desempates e lógica de toggle no mock.
-- `reviews.test.ts`: Mapeamento `toReview`, chamadas GET/POST com cabeçalho `X-Visitor-Id` e delegação ao mock.
+- `reviews.test.ts`: Mapeamento `toReview`, chamadas GET/POST, consulta de média agregada e delegação ao mock.
 - `StarRating.test.tsx` e `ReviewSortSelector.test.tsx`: Acessibilidade e eventos de seleção.
 - `ReviewCard.test.tsx`: Proteção de spoiler inicial por flag e por threshold `>= 3`, clique em "Mostrar análise" e cliques em cada botão de interação.
 - `useMovieReviews.test.ts`: Ciclos de estado, troca de ordenação e feedback de erro de voto.
 - `ReviewList.test.tsx`: Estados `loading`, `empty`, `error`, `success` e alertas de erro ao votar.
+- `ReviewModal.test.tsx`, `StarRatingInput.test.tsx` e `HighlightPicker.test.tsx`: validações, estados de falha e controles do cadastro.

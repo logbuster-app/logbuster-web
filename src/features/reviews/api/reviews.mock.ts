@@ -1,4 +1,5 @@
 import type {
+  CreateReviewInput,
   Review,
   ReviewInteraction,
   ReviewListPage,
@@ -11,6 +12,23 @@ export type InteractionToggleResult = {
   active: boolean;
   counts: Review["counts"];
   viewerInteractions: ReviewInteraction[];
+};
+
+export type ReviewCreationMockResponse = {
+  id: string;
+  movie_id: string;
+  author_name: string;
+  rating: number;
+  content: string;
+  is_spoiler: boolean;
+  highlights: Review["highlights"];
+  counts: {
+    like: number;
+    spoiler: number;
+    well_argued: number;
+  };
+  viewer_interactions: ReviewInteraction[];
+  created_at: string;
 };
 
 const INITIAL_MOCK_REVIEWS: Review[] = [
@@ -90,6 +108,55 @@ const activeInteractions = new Set<string>(); // chave: `${reviewId}:${visitorId
 export function resetMockReviews(): void {
   mockReviews = JSON.parse(JSON.stringify(INITIAL_MOCK_REVIEWS));
   activeInteractions.clear();
+}
+
+export async function createReviewMock(
+  input: CreateReviewInput,
+): Promise<ReviewCreationMockResponse> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const response: ReviewCreationMockResponse = {
+    id: crypto.randomUUID(),
+    movie_id: input.movieId,
+    author_name: input.authorName,
+    rating: input.rating,
+    content: input.content,
+    is_spoiler: input.isSpoiler,
+    highlights: [...input.highlights],
+    counts: { like: 0, spoiler: 0, well_argued: 0 },
+    viewer_interactions: [],
+    created_at: new Date().toISOString(),
+  };
+
+  mockReviews = [
+    {
+      id: response.id,
+      movieId: response.movie_id,
+      authorName: response.author_name,
+      rating: response.rating,
+      content: response.content,
+      isSpoiler: response.is_spoiler,
+      highlights: response.highlights,
+      counts: { like: 0, spoiler: 0, wellArgued: 0 },
+      viewerInteractions: [],
+      createdAt: response.created_at,
+    },
+    ...mockReviews,
+  ];
+  return response;
+}
+
+export async function fetchMovieRatingMock(movieId: string) {
+  const reviews = mockReviews.filter((review) => review.movieId === movieId);
+  const average = reviews.length
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+    : null;
+
+  return {
+    movieId,
+    averageRating: average === null ? null : Math.round(average * 100) / 100,
+    reviewsCount: reviews.length,
+  };
 }
 
 function sortReviews(reviews: Review[], sort: ReviewSort): Review[] {

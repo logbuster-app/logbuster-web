@@ -1,0 +1,54 @@
+"use client";
+
+import {
+  REVIEW_HIGHLIGHT_LABELS,
+  type ReviewHighlight,
+} from "../types";
+
+const highlights = Object.keys(REVIEW_HIGHLIGHT_LABELS) as ReviewHighlight[];
+
+export type HighlightPickerProps = {
+  value: ReviewHighlight[];
+  onChange: (highlights: ReviewHighlight[]) => void;
+};
+
+export function HighlightPicker({ value, onChange }: HighlightPickerProps) {
+  function toggle(highlight: ReviewHighlight) {
+    if (value.includes(highlight)) {
+      onChange(value.filter((item) => item !== highlight));
+      return;
+    }
+    if (value.length < 2) onChange([...value, highlight]);
+  }
+
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-medium text-foreground">
+        Pontos de destaque <span className="text-muted">(opcional, até 2)</span>
+      </legend>
+      <div className="flex flex-wrap gap-2">
+        {highlights.map((highlight) => {
+          const selected = value.includes(highlight);
+          const disabled = value.length >= 2 && !selected;
+
+          return (
+            <button
+              key={highlight}
+              type="button"
+              aria-pressed={selected}
+              disabled={disabled}
+              onClick={() => toggle(highlight)}
+              className={`min-h-9 cursor-pointer rounded-full border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:cursor-not-allowed disabled:opacity-45 ${
+                selected
+                  ? "border-primary-text bg-primary/20 text-foreground"
+                  : "border-border bg-surface-raised text-muted hover:border-primary-text/60 hover:text-foreground"
+              }`}
+            >
+              {REVIEW_HIGHLIGHT_LABELS[highlight]}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}

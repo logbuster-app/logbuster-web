@@ -69,6 +69,25 @@ describe("createApiClient", () => {
     });
   });
 
+  it("lê a mensagem do envelope de erro padrão do LogBuster", async () => {
+    mockFetch(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "A nota deve estar entre 0.5 e 5.0.",
+          details: [{ field: "rating", issue: "Valor inválido" }],
+        },
+      },
+      { ok: false, status: 422 },
+    );
+
+    await expect(createApiClient().request("/x")).rejects.toMatchObject({
+      code: "upstream",
+      status: 422,
+      message: "A nota deve estar entre 0.5 e 5.0.",
+    });
+  });
+
   it("prefere errorMessage explícita à do corpo", async () => {
     mockFetch({ error: "interno" }, { ok: false, status: 500 });
     await expect(createApiClient().request("/x", { errorMessage: "Falhou" })).rejects.toMatchObject({

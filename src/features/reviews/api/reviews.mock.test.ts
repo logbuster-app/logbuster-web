@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  createReviewMock,
   fetchReviewsMock,
   resetMockReviews,
   toggleInteractionMock,
@@ -24,6 +25,44 @@ describe("reviews.mock", () => {
         page.items[i + 1].counts.wellArgued,
       );
     }
+  });
+
+  it("cria avaliação no contrato esperado e a disponibiliza na listagem mock", async () => {
+    const input = {
+      movieId,
+      authorName: "Thyago",
+      rating: 4.5,
+      content: "Direção precisa e efeitos visuais inovadores.",
+      isSpoiler: true,
+      highlights: ["direction", "visual_effects"] as (
+        | "direction"
+        | "visual_effects"
+      )[],
+    };
+
+    const created = await createReviewMock(input);
+    const page = await fetchReviewsMock(movieId, { sort: "newest" });
+
+    expect(created).toMatchObject({
+      movie_id: movieId,
+      author_name: input.authorName,
+      rating: input.rating,
+      content: input.content,
+      is_spoiler: true,
+      highlights: input.highlights,
+      counts: { like: 0, spoiler: 0, well_argued: 0 },
+      viewer_interactions: [],
+    });
+    expect(created.id).toBeTruthy();
+    expect(created.created_at).toBeTruthy();
+    expect(page.items.find((item) => item.id === created.id)).toMatchObject({
+      id: created.id,
+      movieId,
+      authorName: input.authorName,
+      rating: input.rating,
+      isSpoiler: true,
+    });
+    expect(page.total).toBe(5);
   });
 
   it("ordena por Mais curtidas (most_liked)", async () => {

@@ -2,6 +2,7 @@ import { env } from "@/shared/config/env";
 import { backendApi } from "@/shared/api/clients";
 import { ApiError } from "@/shared/lib/errors";
 import type {
+  CreateReviewInput,
   Review,
   ReviewHighlight,
   ReviewInteraction,
@@ -10,6 +11,8 @@ import type {
 } from "../types";
 import {
   type InteractionToggleResult,
+  createReviewMock,
+  fetchMovieRatingMock,
   fetchReviewsMock,
   toggleInteractionMock,
 } from "./reviews.mock";
@@ -50,6 +53,62 @@ export type BackendInteractionResponse = {
   };
   viewer_interactions: ReviewInteraction[];
 };
+
+export type BackendMovieRatingResponse = {
+  movie_id: string;
+  average_rating: number | null;
+  reviews_count: number;
+};
+
+export type MovieRating = {
+  movieId: string;
+  averageRating: number | null;
+  reviewsCount: number;
+};
+
+export async function createReview(input: CreateReviewInput): Promise<Review> {
+  if (env.useApiMocks) {
+    return toReview(await createReviewMock(input));
+  }
+
+  const data = await backendApi.request<BackendReviewItem>("/api/v1/reviews", {
+    method: "POST",
+    body: {
+      movie_id: input.movieId,
+      author_name: input.authorName,
+      rating: input.rating,
+      content: input.content,
+      is_spoiler: input.isSpoiler,
+      highlights: input.highlights,
+    },
+    networkMessage: "Não foi possível publicar sua avaliação. Verifique sua conexão.",
+  });
+
+  return toReview(data);
+}
+
+export async function fetchMovieRating(
+  movieId: string,
+  signal?: AbortSignal,
+): Promise<MovieRating> {
+  if (env.useApiMocks) {
+    return fetchMovieRatingMock(movieId);
+  }
+
+  const data = await backendApi.request<BackendMovieRatingResponse>(
+    `/api/v1/movies/${encodeURIComponent(movieId)}/rating`,
+    {
+      signal,
+      networkMessage: "Não foi possível carregar a nota média do filme.",
+    },
+  );
+
+  return {
+    movieId: data.movie_id,
+    averageRating: data.average_rating,
+    reviewsCount: Number(data.reviews_count ?? 0),
+  };
+}
 
 export function toReview(item: BackendReviewItem): Review {
   return {

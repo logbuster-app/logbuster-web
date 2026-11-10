@@ -8,5 +8,6 @@
   - [Busca de filmes](features/busca-de-filmes.md)
   - [Ficha do filme](features/detalhe-de-filme.md)
   - [Avaliações e interações](features/avaliacoes-e-interacoes.md)
+  - [Cadastro de avaliação](features/cadastro-de-avaliacao.md)
 - [Guia para continuar o front](continuando.md)
 - [Fluxo de entrega (PR)](contribuindo.md)

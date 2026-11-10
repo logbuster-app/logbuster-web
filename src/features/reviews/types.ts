@@ -34,6 +34,15 @@ export type Review = {
   createdAt: string;
 };
 
+export type CreateReviewInput = {
+  movieId: string;
+  authorName: string;
+  rating: number;
+  content: string;
+  isSpoiler: boolean;
+  highlights: ReviewHighlight[];
+};
+
 export type ReviewListPage = {
   items: Review[];
   total: number;

@@ -1,11 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as reviewsApi from "../api/reviews";
 import type { Review, ReviewListPage } from "../types";
 import { ReviewList } from "./ReviewList";
 
 describe("ReviewList", () => {
+  beforeEach(() => {
+    vi.spyOn(reviewsApi, "fetchMovieRating").mockResolvedValue({
+      movieId: "tt0133093",
+      averageRating: 4.5,
+      reviewsCount: 1,
+    });
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -96,6 +104,37 @@ describe("ReviewList", () => {
       expect.objectContaining({ sort: "most_liked" }),
       expect.any(AbortSignal),
     );
+  });
+
+  it("abre o modal e exibe a avaliação criada e a média atualizada", async () => {
+    const user = userEvent.setup();
+    const createdReview: Review = {
+      ...sampleReview,
+      id: "r2",
+      authorName: "Ana",
+      rating: 5,
+      content: "Uma análise nova e suficientemente longa.",
+    };
+    vi.spyOn(reviewsApi, "fetchMovieReviews").mockResolvedValueOnce(samplePage);
+    vi.spyOn(reviewsApi, "createReview").mockResolvedValueOnce(createdReview);
+    vi.spyOn(reviewsApi, "fetchMovieRating")
+      .mockResolvedValueOnce({ movieId: "tt0133093", averageRating: 4.5, reviewsCount: 1 })
+      .mockResolvedValueOnce({ movieId: "tt0133093", averageRating: 4.75, reviewsCount: 2 });
+
+    render(<ReviewList movieId="tt0133093" />);
+
+    await user.click(await screen.findByRole("button", { name: "Avaliar filme" }));
+    await user.click(screen.getByRole("button", { name: "5,0 de 5 estrelas" }));
+    await user.type(screen.getByLabelText(/nome \/ apelido/i), "Ana");
+    await user.type(
+      screen.getByLabelText(/sua análise/i),
+      "Uma análise nova e suficientemente longa.",
+    );
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(await screen.findByText("Ana")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(await screen.findByText(/nota média da comunidade/i)).toHaveTextContent("4.8 / 5");
   });
 
   it("exibe aviso de erro quando ocorre falha ao votar", async () => {

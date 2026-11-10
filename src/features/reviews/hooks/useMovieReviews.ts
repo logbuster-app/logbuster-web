@@ -94,6 +94,26 @@ export function useMovieReviews(
     setVersion((v) => v + 1);
   }, []);
 
+  const addReview = useCallback(
+    (review: Review) => {
+      setQueryResult((previous) => {
+        const sameMovie = previous?.movieId === trimmedId;
+        const previousItems = sameMovie ? previous.items : [];
+        const alreadyPresent = previousItems.some((item) => item.id === review.id);
+
+        return {
+          movieId: trimmedId,
+          sort,
+          version,
+          items: [review, ...previousItems.filter((item) => item.id !== review.id)],
+          total: (sameMovie ? previous.total : 0) + (alreadyPresent ? 0 : 1),
+          error: null,
+        };
+      });
+    },
+    [trimmedId, sort, version],
+  );
+
   const toggleVote = useCallback(
     async (reviewId: string, type: ReviewInteraction) => {
       setVotingError(null);
@@ -141,5 +161,6 @@ export function useMovieReviews(
     changeSort,
     toggleVote,
     reload,
+    addReview,
   };
 }

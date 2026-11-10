@@ -38,11 +38,20 @@ function buildUrl(baseUrl: string, path: string, query?: RequestOptions["query"]
   return url.toString();
 }
 
-/** Extrai uma mensagem legível do corpo de erro (`{ error }` ou `{ detail }` do FastAPI). */
+/** Extrai a mensagem do envelope padrão ou do erro simples do FastAPI. */
 async function readErrorMessage(res: Response): Promise<string | null> {
   try {
     const data = (await res.json()) as { error?: unknown; detail?: unknown };
-    if (typeof data?.error === "string") return data.error;
+    const error = data?.error;
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof error.message === "string"
+    ) {
+      return error.message;
+    }
+    if (typeof error === "string") return error;
     if (typeof data?.detail === "string") return data.detail;
   } catch {
     // corpo ausente ou não-JSON

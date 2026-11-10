@@ -3,8 +3,18 @@ export { ReviewList } from "./components/ReviewList";
 export { ReviewCard } from "./components/ReviewCard";
 export { StarRating } from "./components/StarRating";
 export { ReviewSortSelector } from "./components/ReviewSortSelector";
+export { ReviewModal } from "./components/ReviewModal";
+export { StarRatingInput } from "./components/StarRatingInput";
+export { HighlightPicker } from "./components/HighlightPicker";
 export { useMovieReviews } from "./hooks/useMovieReviews";
-export { fetchMovieReviews, toggleReviewInteraction, toReview } from "./api/reviews";
+export {
+  createReview,
+  fetchMovieRating,
+  fetchMovieReviews,
+  toggleReviewInteraction,
+  toReview,
+} from "./api/reviews";
+export type { MovieRating } from "./api/reviews";
 export {
   fetchReviewsMock,
   toggleInteractionMock,
@@ -17,5 +27,6 @@ export type {
   ReviewSort,
   Review,
   ReviewListPage,
+  CreateReviewInput,
 } from "./types";
 export { REVIEW_HIGHLIGHT_LABELS, REVIEW_SORT_OPTIONS } from "./types";

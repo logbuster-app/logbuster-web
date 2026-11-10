@@ -44,6 +44,7 @@ describe("ReviewCard", () => {
     render(<ReviewCard review={spoilerReview} />);
 
     expect(screen.getByText("Esta avaliação contém spoiler")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /spoiler/i })).not.toBeInTheDocument();
     expect(
       screen.queryByText("Spoiler crítico: o vilão é na verdade o mentor do herói."),
     ).not.toBeInTheDocument();

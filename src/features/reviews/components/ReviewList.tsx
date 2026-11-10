@@ -1,10 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
+import { useMovieRatingContext } from "@/shared/contexts/MovieRatingContext";
+import { fetchMovieRating } from "../api/reviews";
 import { useMovieReviews } from "../hooks/useMovieReviews";
+import type { Review } from "../types";
 import { ReviewCard } from "./ReviewCard";
+import { ReviewModal } from "./ReviewModal";
 import { ReviewSortSelector } from "./ReviewSortSelector";
 
 export type ReviewListProps = {
@@ -12,6 +16,14 @@ export type ReviewListProps = {
 };
 
 export function ReviewList({ movieId }: ReviewListProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ratingRefresh, setRatingRefresh] = useState(0);
+  const [movieRating, setMovieRating] = useState<{
+    averageRating: number | null;
+    reviewsCount: number;
+  } | null>(null);
+  const ratingContext = useMovieRatingContext();
+  const updateRating = ratingContext?.updateRating;
   const {
     reviews,
     sort,
@@ -21,7 +33,29 @@ export function ReviewList({ movieId }: ReviewListProps) {
     interactingReviewId,
     changeSort,
     toggleVote,
+    addReview,
   } = useMovieReviews(movieId);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchMovieRating(movieId, controller.signal)
+      .then(({ averageRating, reviewsCount }) => {
+        const summary = { movieId, averageRating, reviewsCount };
+        setMovieRating(summary);
+        updateRating?.(summary);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setMovieRating(null);
+      });
+
+    return () => controller.abort();
+  }, [movieId, ratingRefresh, updateRating]);
+
+  function handleReviewCreated(review: Review) {
+    addReview(review);
+    setIsModalOpen(false);
+    setRatingRefresh((version) => version + 1);
+  }
 
   return (
     <div className="space-y-6">
@@ -36,12 +70,34 @@ export function ReviewList({ movieId }: ReviewListProps) {
           </p>
         </div>
 
-        <ReviewSortSelector
-          value={sort}
-          onChange={changeSort}
-          disabled={status === "loading"}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <ReviewSortSelector
+            value={sort}
+            onChange={changeSort}
+            disabled={status === "loading"}
+          />
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex h-11 cursor-pointer items-center justify-center rounded-card bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text"
+          >
+            Avaliar filme
+          </button>
+        </div>
       </div>
+
+      {movieRating?.reviewsCount ? (
+        <p className="text-sm text-muted" aria-live="polite">
+          Nota média da comunidade:{" "}
+          <span className="font-semibold text-secondary">
+            {movieRating.averageRating?.toFixed(1) ?? "--"} / 5
+          </span>
+          <span>
+            {" "}({movieRating.reviewsCount}{" "}
+            {movieRating.reviewsCount === 1 ? "avaliação" : "avaliações"})
+          </span>
+        </p>
+      ) : null}
 
       {/* Banner de erro de voto, se houver falha pontual ao votar */}
       {votingError ? (
@@ -93,6 +149,14 @@ export function ReviewList({ movieId }: ReviewListProps) {
             />
           ))}
         </div>
+      ) : null}
+
+      {isModalOpen ? (
+        <ReviewModal
+          movieId={movieId}
+          onClose={() => setIsModalOpen(false)}
+          onCreated={handleReviewCreated}
+        />
       ) : null}
     </div>
   );

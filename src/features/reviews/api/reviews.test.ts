@@ -9,6 +9,8 @@ vi.mock("@/shared/config/env", () => ({ env: envMock }));
 
 import {
   type BackendReviewItem,
+  createReview,
+  fetchMovieRating,
   fetchMovieReviews,
   toReview,
   toggleReviewInteraction,
@@ -152,6 +154,128 @@ describe("fetchMovieReviews", () => {
     const result = await fetchMovieReviews("tt0133093");
     expect(spy).toHaveBeenCalledWith("tt0133093", undefined);
     expect(result.total).toBe(0);
+  });
+});
+
+describe("createReview (mock-first)", () => {
+  beforeEach(() => {
+    envMock.useApiMocks = true;
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("delegates creation to reviews.mock.ts without making a network request", async () => {
+    const input = {
+      movieId: "tt0133093",
+      authorName: "Thyago",
+      rating: 4.5,
+      content: "Análise válida com pelo menos dez caracteres.",
+      isSpoiler: false,
+      highlights: ["direction", "visual_effects"] as (
+        | "direction"
+        | "visual_effects"
+      )[],
+    };
+    const spy = vi.spyOn(reviewsMockModule, "createReviewMock").mockResolvedValueOnce({
+      id: "review-mock",
+      movie_id: input.movieId,
+      author_name: input.authorName,
+      rating: input.rating,
+      content: input.content,
+      is_spoiler: input.isSpoiler,
+      highlights: [...input.highlights],
+      counts: { like: 0, spoiler: 0, well_argued: 0 },
+      viewer_interactions: [],
+      created_at: "2026-11-09T12:00:00Z",
+    });
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(createReview(input)).resolves.toMatchObject({
+      id: "review-mock",
+      movieId: input.movieId,
+      authorName: input.authorName,
+      createdAt: "2026-11-09T12:00:00Z",
+    });
+    expect(spy).toHaveBeenCalledWith(input);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("envia POST com payload snake_case e converte a resposta 201", async () => {
+    envMock.useApiMocks = false;
+    const input = {
+      movieId: "tt0133093",
+      authorName: "Thyago",
+      rating: 4.5,
+      content: "Análise válida com pelo menos dez caracteres.",
+      isSpoiler: false,
+      highlights: [],
+    };
+    const fetchMock = mockFetch(
+      {
+        id: "review-1",
+        movie_id: input.movieId,
+        author_name: input.authorName,
+        rating: input.rating,
+        content: input.content,
+        is_spoiler: false,
+        highlights: [],
+        counts: { like: 0, spoiler: 0, well_argued: 0 },
+        viewer_interactions: [],
+        created_at: "2026-11-09T12:00:00Z",
+      },
+      { status: 201 },
+    );
+
+    const review = await createReview(input);
+
+    const [urlArg, initArg] = fetchMock.mock.calls[0];
+    expect(new URL(urlArg).pathname).toBe("/api/v1/reviews");
+    expect(initArg.method).toBe("POST");
+    expect(JSON.parse(initArg.body)).toEqual({
+      movie_id: input.movieId,
+      author_name: input.authorName,
+      rating: input.rating,
+      content: input.content,
+      is_spoiler: false,
+      highlights: [],
+    });
+    expect(review).toMatchObject({ movieId: input.movieId, authorName: input.authorName });
+  });
+});
+
+describe("fetchMovieRating", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("consulta a média agregada e converte a resposta do backend", async () => {
+    envMock.useApiMocks = false;
+    const fetchMock = mockFetch({
+      movie_id: "tt0133093",
+      average_rating: 4.67,
+      reviews_count: 3,
+    });
+
+    await expect(fetchMovieRating("tt0133093")).resolves.toEqual({
+      movieId: "tt0133093",
+      averageRating: 4.67,
+      reviewsCount: 3,
+    });
+    expect(new URL(fetchMock.mock.calls[0][0]).pathname).toBe(
+      "/api/v1/movies/tt0133093/rating",
+    );
+  });
+
+  it("calcula a média mockada incluindo todas as avaliações", async () => {
+    envMock.useApiMocks = true;
+    await expect(fetchMovieRating("tt0133093")).resolves.toEqual({
+      movieId: "tt0133093",
+      averageRating: 4.25,
+      reviewsCount: 4,
+    });
   });
 });
 
