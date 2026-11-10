@@ -56,8 +56,8 @@ export type BackendInteractionResponse = {
 
 export type BackendMovieRatingResponse = {
   movie_id: string;
-  average_rating: number | null;
-  reviews_count: number;
+  rating_avg: number | null;
+  rating_count: number;
 };
 
 export type MovieRating = {
@@ -105,8 +105,8 @@ export async function fetchMovieRating(
 
   return {
     movieId: data.movie_id,
-    averageRating: data.average_rating,
-    reviewsCount: Number(data.reviews_count ?? 0),
+    averageRating: data.rating_avg,
+    reviewsCount: Number(data.rating_count ?? 0),
   };
 }
 

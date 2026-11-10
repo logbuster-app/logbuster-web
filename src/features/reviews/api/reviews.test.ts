@@ -255,8 +255,8 @@ describe("fetchMovieRating", () => {
     envMock.useApiMocks = false;
     const fetchMock = mockFetch({
       movie_id: "tt0133093",
-      average_rating: 4.67,
-      reviews_count: 3,
+      rating_avg: 4.67,
+      rating_count: 3,
     });
 
     await expect(fetchMovieRating("tt0133093")).resolves.toEqual({
