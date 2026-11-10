@@ -108,7 +108,7 @@ describe("MovieDetail", () => {
     vi.spyOn(omdbApi, "getMovieById").mockResolvedValueOnce(ratedMovie);
     render(<MovieDetail movieId="tt0133093" />);
 
-    expect(await screen.findByText("4.8")).toBeInTheDocument();
+    expect(await screen.findByText("4,8")).toBeInTheDocument();
     expect(screen.getByText(/\/ 5 \(15 avaliações\)/)).toBeInTheDocument();
   });
 

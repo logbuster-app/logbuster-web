@@ -93,6 +93,36 @@ describe("ReviewModal", () => {
     expect(window.localStorage.getItem("logbuster:review_author_name")).toBe("Thyago");
   });
 
+  it("fecha com Escape e com Cancelar quando não está enviando", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(onClose).toHaveBeenCalledTimes(2);
+  });
+
+  it("não fecha ao clicar fora, para não perder o texto digitado", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+
+    await user.type(screen.getByLabelText(/sua análise/i), "Texto em andamento");
+    await user.click(screen.getByRole("dialog").parentElement as HTMLElement);
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByLabelText(/sua análise/i)).toHaveValue("Texto em andamento");
+  });
+
+  it("preenche o nome salvo da última publicação", () => {
+    window.localStorage.setItem("logbuster:review_author_name", "Thyago");
+    render(<ReviewModal movieId="tt0133093" onClose={vi.fn()} onCreated={vi.fn()} />);
+
+    expect(screen.getByLabelText(/nome \/ apelido/i)).toHaveValue("Thyago");
+  });
+
   it("fecha com Escape e mantém o modal aberto enquanto envia", async () => {
     const onClose = vi.fn();
     createReviewMock.mockReturnValueOnce(new Promise(() => {}));

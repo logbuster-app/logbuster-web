@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
-import { useMovieRatingContext } from "@/shared/contexts/MovieRatingContext";
-import { fetchMovieRating } from "../api/reviews";
+import { useMovieRating } from "../hooks/useMovieRating";
 import { useMovieReviews } from "../hooks/useMovieReviews";
 import type { Review } from "../types";
 import { ReviewCard } from "./ReviewCard";
@@ -17,13 +16,6 @@ export type ReviewListProps = {
 
 export function ReviewList({ movieId }: ReviewListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ratingRefresh, setRatingRefresh] = useState(0);
-  const [movieRating, setMovieRating] = useState<{
-    averageRating: number | null;
-    reviewsCount: number;
-  } | null>(null);
-  const ratingContext = useMovieRatingContext();
-  const updateRating = ratingContext?.updateRating;
   const {
     reviews,
     sort,
@@ -36,25 +28,12 @@ export function ReviewList({ movieId }: ReviewListProps) {
     addReview,
   } = useMovieReviews(movieId);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchMovieRating(movieId, controller.signal)
-      .then(({ averageRating, reviewsCount }) => {
-        const summary = { movieId, averageRating, reviewsCount };
-        setMovieRating(summary);
-        updateRating?.(summary);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setMovieRating(null);
-      });
-
-    return () => controller.abort();
-  }, [movieId, ratingRefresh, updateRating]);
+  const { refresh: refreshRating } = useMovieRating(movieId);
 
   function handleReviewCreated(review: Review) {
     addReview(review);
     setIsModalOpen(false);
-    setRatingRefresh((version) => version + 1);
+    refreshRating();
   }
 
   return (
@@ -85,19 +64,6 @@ export function ReviewList({ movieId }: ReviewListProps) {
           </button>
         </div>
       </div>
-
-      {movieRating?.reviewsCount ? (
-        <p className="text-sm text-muted" aria-live="polite">
-          Nota média da comunidade:{" "}
-          <span className="font-semibold text-secondary">
-            {movieRating.averageRating?.toFixed(1) ?? "--"} / 5
-          </span>
-          <span>
-            {" "}({movieRating.reviewsCount}{" "}
-            {movieRating.reviewsCount === 1 ? "avaliação" : "avaliações"})
-          </span>
-        </p>
-      ) : null}
 
       {/* Banner de erro de voto, se houver falha pontual ao votar */}
       {votingError ? (

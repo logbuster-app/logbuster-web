@@ -7,6 +7,10 @@ export { ReviewModal } from "./components/ReviewModal";
 export { StarRatingInput } from "./components/StarRatingInput";
 export { HighlightPicker } from "./components/HighlightPicker";
 export { useMovieReviews } from "./hooks/useMovieReviews";
+export { useCreateReview } from "./hooks/useCreateReview";
+export { useMovieRating } from "./hooks/useMovieRating";
+export { validateReview, REVIEW_LIMITS } from "./validation";
+export type { ReviewFormValues, ReviewValidationResult } from "./validation";
 export {
   createReview,
   fetchMovieRating,

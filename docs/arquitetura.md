@@ -18,7 +18,9 @@ src/
     components/         UI genérica (SiteHeader, Spinner, StateMessage)
     config/             Variáveis de ambiente
     api/                Instâncias do cliente HTTP (internalApi, backendApi)
-    lib/                Utilitários (apiClient, ApiError, visitor)
+    contexts/           Estado compartilhado entre features (MovieRatingContext)
+    hooks/              Hooks genéricos de UI (useModalBehavior)
+    lib/                Utilitários (apiClient, ApiError, visitor, format)
   test/                 Setup dos testes
 docs/                   Esta documentação (Docsify)
 ```

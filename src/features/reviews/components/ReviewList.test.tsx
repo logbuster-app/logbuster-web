@@ -1,6 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  MovieRatingProvider,
+  useMovieRatingContext,
+} from "@/shared/contexts/MovieRatingContext";
 import * as reviewsApi from "../api/reviews";
 import type { Review, ReviewListPage } from "../types";
 import { ReviewList } from "./ReviewList";
@@ -117,11 +121,28 @@ describe("ReviewList", () => {
     };
     vi.spyOn(reviewsApi, "fetchMovieReviews").mockResolvedValueOnce(samplePage);
     vi.spyOn(reviewsApi, "createReview").mockResolvedValueOnce(createdReview);
-    vi.spyOn(reviewsApi, "fetchMovieRating")
+    const ratingSpy = vi
+      .spyOn(reviewsApi, "fetchMovieRating")
       .mockResolvedValueOnce({ movieId: "tt0133093", averageRating: 4.5, reviewsCount: 1 })
       .mockResolvedValueOnce({ movieId: "tt0133093", averageRating: 4.75, reviewsCount: 2 });
 
-    render(<ReviewList movieId="tt0133093" />);
+    function RatingProbe() {
+      const rating = useMovieRatingContext()?.rating;
+      return (
+        <p data-testid="rating-probe">
+          {rating ? `${rating.averageRating}|${rating.reviewsCount}` : "-"}
+        </p>
+      );
+    }
+
+    render(
+      <MovieRatingProvider>
+        <RatingProbe />
+        <ReviewList movieId="tt0133093" />
+      </MovieRatingProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("rating-probe")).toHaveTextContent("4.5|1"));
 
     await user.click(await screen.findByRole("button", { name: "Avaliar filme" }));
     await user.click(screen.getByRole("button", { name: "5,0 de 5 estrelas" }));
@@ -134,7 +155,10 @@ describe("ReviewList", () => {
 
     expect(await screen.findByText("Ana")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(await screen.findByText(/nota média da comunidade/i)).toHaveTextContent("4.8 / 5");
+    // A média é recarregada e publicada no contexto (exibida uma única vez, na ficha do filme).
+    await waitFor(() => expect(screen.getByTestId("rating-probe")).toHaveTextContent("4.75|2"));
+    expect(ratingSpy).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText(/nota média da comunidade/i)).not.toBeInTheDocument();
   });
 
   it("exibe aviso de erro quando ocorre falha ao votar", async () => {

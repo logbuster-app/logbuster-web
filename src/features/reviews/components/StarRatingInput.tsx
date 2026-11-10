@@ -1,13 +1,11 @@
 "use client";
 
+import { formatRating } from "@/shared/lib/format";
+
 export type StarRatingInputProps = {
   value: number | null;
   onChange: (rating: number) => void;
 };
-
-function formatRating(rating: number): string {
-  return rating.toLocaleString("pt-BR", { minimumFractionDigits: 1 });
-}
 
 export function StarRatingInput({ value, onChange }: StarRatingInputProps) {
   return (

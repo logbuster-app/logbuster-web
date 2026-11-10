@@ -1,12 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { createReview } from "../api/reviews";
-import type { CreateReviewInput, Review, ReviewHighlight } from "../types";
+import { useRef, useState, type FormEvent } from "react";
+import { useModalBehavior } from "@/shared/hooks/useModalBehavior";
+import { useCreateReview } from "../hooks/useCreateReview";
+import type { Review, ReviewHighlight } from "../types";
+import { REVIEW_LIMITS, validateReview } from "../validation";
 import { HighlightPicker } from "./HighlightPicker";
 import { StarRatingInput } from "./StarRatingInput";
 
 const AUTHOR_NAME_STORAGE_KEY = "logbuster:review_author_name";
+
+function readSavedAuthorName(): string {
+  try {
+    return window.localStorage.getItem(AUTHOR_NAME_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function saveAuthorName(name: string) {
+  try {
+    window.localStorage.setItem(AUTHOR_NAME_STORAGE_KEY, name);
+  } catch {
+    // A publicação não depende da persistência local do nome.
+  }
+}
 
 export type ReviewModalProps = {
   movieId: string;
@@ -14,96 +32,46 @@ export type ReviewModalProps = {
   onCreated: (review: Review) => void;
 };
 
+/**
+ * Formulário de cadastro de avaliação (SPEC-FRONT-04).
+ * Só fecha por `Escape`, "Cancelar" ou "×" — nunca por clique fora — para não
+ * perder o texto digitado. Em falha, mantém todos os valores (RN-05).
+ */
 export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
-  const authorNameInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  // O modal só é montado no navegador (após o clique), então ler o storage aqui é seguro.
+  const [authorName, setAuthorName] = useState(readSavedAuthorName);
   const [rating, setRating] = useState<number | null>(null);
   const [highlights, setHighlights] = useState<ReviewHighlight[]>([]);
   const [content, setContent] = useState("");
   const [isSpoiler, setIsSpoiler] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const { submit, submitting, error: submitError, clearError } = useCreateReview();
 
-  useEffect(() => {
-    try {
-      if (authorNameInputRef.current) {
-        authorNameInputRef.current.value =
-          window.localStorage.getItem(AUTHOR_NAME_STORAGE_KEY) ?? "";
-      }
-    } catch {
-      if (authorNameInputRef.current) authorNameInputRef.current.value = "";
-    }
-  }, []);
+  useModalBehavior(dialogRef, { onClose, canClose: !submitting });
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !submitting) onClose();
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, submitting]);
-
-  function validate(): CreateReviewInput | null {
-    const trimmedName = authorNameInputRef.current?.value.trim() ?? "";
-    const trimmedContent = content.trim();
-
-    if (rating === null || rating < 0.5 || rating > 5 || rating * 2 % 1 !== 0) {
-      setError("Selecione uma nota entre 0,5 e 5,0 estrelas.");
-      return null;
-    }
-    if (trimmedName.length < 2 || trimmedName.length > 50) {
-      setError("O nome deve ter entre 2 e 50 caracteres.");
-      return null;
-    }
-    if (trimmedContent.length < 10 || trimmedContent.length > 2000) {
-      setError("A análise deve ter entre 10 e 2000 caracteres.");
-      return null;
-    }
-
-    return {
-      movieId,
-      authorName: trimmedName,
-      rating,
-      content: trimmedContent,
-      isSpoiler,
-      highlights,
-    };
-  }
+  const error = validationError ?? submitError;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    const input = validate();
-    if (!input) return;
-
-    setSubmitting(true);
-    try {
-      const review = await createReview(input);
-      try {
-        window.localStorage.setItem(AUTHOR_NAME_STORAGE_KEY, input.authorName);
-      } catch {
-        // A publicação não depende da persistência local do nome.
-      }
-      onCreated(review);
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Não foi possível publicar sua avaliação. Tente novamente.",
-      );
-    } finally {
-      setSubmitting(false);
+    clearError();
+    const result = validateReview({ movieId, rating, authorName, content, isSpoiler, highlights });
+    if (!result.ok) {
+      setValidationError(result.error);
+      return;
     }
+    setValidationError(null);
+
+    const review = await submit(result.input);
+    if (!review) return;
+    saveAuthorName(result.input.authorName);
+    onCreated(review);
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/80 p-3 sm:p-6"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !submitting) onClose();
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/80 p-3 sm:p-6">
       <section
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="review-modal-title"
@@ -146,9 +114,10 @@ export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
             </label>
             <input
               id="review-author-name"
-              ref={authorNameInputRef}
+              value={authorName}
+              onChange={(event) => setAuthorName(event.target.value)}
               autoFocus
-              maxLength={50}
+              maxLength={REVIEW_LIMITS.authorName.max}
               autoComplete="nickname"
               className="h-11 w-full rounded-card border border-border bg-background px-3 text-sm text-foreground placeholder:text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text"
             />
@@ -163,7 +132,7 @@ export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
               id="review-content"
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              maxLength={2000}
+              maxLength={REVIEW_LIMITS.content.max}
               rows={5}
               className="w-full resize-y rounded-card border border-border bg-background px-3 py-2 text-sm leading-relaxed text-foreground placeholder:text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text"
             />

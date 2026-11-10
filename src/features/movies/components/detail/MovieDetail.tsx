@@ -5,6 +5,7 @@ import Link from "next/link";
 import React from "react";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
+import { formatRating } from "@/shared/lib/format";
 import {
   MovieRatingProvider,
   useMovieRatingContext,
@@ -165,7 +166,7 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
                   <span className="text-muted">Nota LogBuster</span>{" "}
                   {currentRating && currentRating.reviewsCount > 0 && currentRating.averageRating !== null ? (
                     <span className="text-secondary font-medium">
-                      <span>{currentRating.averageRating.toFixed(1)}</span>
+                      <span>{formatRating(currentRating.averageRating)}</span>
                       <span>
                         {" "}
                         / 5 ({currentRating.reviewsCount}{" "}
