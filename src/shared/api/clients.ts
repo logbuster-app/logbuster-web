@@ -13,5 +13,6 @@ export const internalApi = createApiClient();
 /** Backend FastAPI do LogBuster. Envia `X-Visitor-Id` automaticamente (uso no navegador). */
 export const backendApi = createApiClient({
   baseUrl: env.apiBaseUrl,
-  headers: () => ({ "X-Visitor-Id": getVisitorId() }),
+  headers: (): Record<string, string> =>
+    typeof window === "undefined" ? {} : { "X-Visitor-Id": getVisitorId() },
 });
