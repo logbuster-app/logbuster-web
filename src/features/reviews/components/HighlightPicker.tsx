@@ -23,7 +23,7 @@ export function HighlightPicker({ value, onChange }: HighlightPickerProps) {
 
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm font-medium text-foreground">
+      <legend className="text-xs font-bold uppercase tracking-wide text-foreground">
         Pontos de destaque <span className="text-muted">(opcional, até 2)</span>
       </legend>
       <div className="flex flex-wrap gap-2">
@@ -38,10 +38,10 @@ export function HighlightPicker({ value, onChange }: HighlightPickerProps) {
               aria-pressed={selected}
               disabled={disabled}
               onClick={() => toggle(highlight)}
-              className={`min-h-9 cursor-pointer rounded-full border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text disabled:cursor-not-allowed disabled:opacity-45 ${
+              className={`min-h-11 cursor-pointer rounded-card border-2 px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
                 selected
-                  ? "border-primary-text bg-primary/20 text-foreground"
-                  : "border-border bg-surface-raised text-muted hover:border-primary-text/60 hover:text-foreground"
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border text-muted hover:border-foreground hover:text-foreground"
               }`}
             >
               {REVIEW_HIGHLIGHT_LABELS[highlight]}

@@ -37,14 +37,14 @@ export function ReviewList({ movieId }: ReviewListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Cabeçalho da seção com seletor de ordenação */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          <h2 className="font-display text-4xl text-foreground">
             Avaliações da comunidade
           </h2>
-          <p className="text-xs text-muted mt-0.5">
+          <p className="mt-2 text-sm text-muted">
             Análises qualificadas por mérito de argumento e votos da comunidade.
           </p>
         </div>
@@ -58,7 +58,7 @@ export function ReviewList({ movieId }: ReviewListProps) {
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex h-11 cursor-pointer items-center justify-center rounded-card bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text"
+            className="inline-flex h-12 cursor-pointer items-center justify-center rounded-card bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             Avaliar filme
           </button>
@@ -69,7 +69,7 @@ export function ReviewList({ movieId }: ReviewListProps) {
       {votingError ? (
         <div
           role="alert"
-          className="rounded-card border border-danger/40 bg-danger/10 p-3 text-xs text-danger"
+          className="rounded-card border-2 border-danger bg-surface p-3 text-sm text-danger"
         >
           {votingError}
         </div>
@@ -105,11 +105,12 @@ export function ReviewList({ movieId }: ReviewListProps) {
 
       {/* Estado: Sucesso com itens */}
       {status === "success" && reviews.length > 0 ? (
-        <div className="space-y-4" aria-label="Lista de avaliações">
-          {reviews.map((review) => (
+        <div aria-label="Lista de avaliações">
+          {reviews.map((review, index) => (
             <ReviewCard
               key={review.id}
               review={review}
+              isLeading={sort === "well_argued" && index === 0 && review.counts.wellArgued > 0}
               onToggleInteraction={toggleVote}
               isInteracting={interactingReviewId === review.id}
             />

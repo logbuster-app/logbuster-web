@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { ArrowLeftIcon } from "@/shared/components/ArrowLeftIcon";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
 import { formatRating } from "@/shared/lib/format";
@@ -12,6 +12,7 @@ import {
 } from "@/shared/contexts/MovieRatingContext";
 import { useMovieDetail } from "../../hooks/useMovieDetail";
 import type { MovieDetail as MovieDetailType } from "../../types";
+import { PosterImage } from "../PosterImage";
 
 export type MovieDetailProps = {
   movieId: string;
@@ -47,13 +48,14 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
         : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <nav aria-label="Navegação secundária">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-primary-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text rounded"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-primary-text hover:underline underline-offset-4"
         >
-          ← Voltar para a busca
+          <ArrowLeftIcon />
+          Voltar para a busca
         </Link>
       </nav>
 
@@ -72,7 +74,7 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
           <div className="text-center">
             <Link
               href="/"
-              className="text-sm font-medium text-primary-text hover:underline"
+              className="text-sm font-semibold uppercase tracking-wide text-primary-text hover:underline underline-offset-4"
             >
               Fazer uma nova busca
             </Link>
@@ -91,35 +93,28 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
       ) : null}
 
       {status === "success" && movie ? (
-        <article className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8">
+        <article className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-10">
             {/* Coluna 1: Pôster com proporção 2:3 */}
-            <div className="relative aspect-[2/3] w-full max-w-[240px] mx-auto md:mx-0 overflow-hidden rounded-card border border-border bg-surface-raised">
-              {movie.posterUrl ? (
-                <Image
-                  src={movie.posterUrl}
-                  alt={`Poster de ${movie.title}`}
-                  fill
-                  sizes="(min-width: 768px) 240px, 100vw"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full min-h-[360px] items-center justify-center p-4 text-center text-sm text-subtle">
-                  Sem poster
-                </div>
-              )}
+            <div className="relative aspect-[2/3] w-full max-w-[280px] mx-auto md:mx-0 overflow-hidden rounded-card border-2 border-foreground bg-surface-raised">
+              <PosterImage
+                src={movie.posterUrl}
+                alt={`Poster de ${movie.title}`}
+                sizes="(min-width: 768px) 280px, 100vw"
+                priority
+                fallbackClassName="min-h-[360px]"
+              />
             </div>
 
             {/* Coluna 2: Dados do filme */}
             <div className="space-y-4">
               <div>
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <h1 className="font-display text-5xl sm:text-7xl text-foreground">
                     {movie.title}
                   </h1>
                   {movie.year ? (
-                    <span className="text-2xl sm:text-3xl font-normal text-muted">
+                    <span className="font-display text-3xl sm:text-4xl text-muted">
                       (<span>{movie.year}</span>)
                     </span>
                   ) : null}
@@ -128,7 +123,7 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
                 {/* Metadados rápidos: duração e gêneros */}
                 {movie.runtime || movie.genres.length > 0 ? (
                   <div
-                    className="mt-2 flex flex-wrap items-center gap-x-2 text-sm text-muted"
+                    className="mt-3 flex flex-wrap items-center gap-x-2 text-sm font-medium uppercase tracking-wide text-muted"
                     aria-label="Metadados do filme"
                   >
                     {movie.runtime ? <span>{movie.runtime}</span> : null}
@@ -145,9 +140,34 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
                 ) : null}
               </div>
 
+              <div className="inline-flex items-stretch bg-foreground text-background">
+                {currentRating && currentRating.reviewsCount > 0 && currentRating.averageRating !== null ? (
+                  <>
+                    <span className="flex items-baseline gap-1.5 px-5 py-2">
+                      <span className="font-display text-7xl">
+                        {formatRating(currentRating.averageRating)}
+                      </span>
+                      <span className="font-display text-4xl">/ 5</span>
+                    </span>
+                    <span className="flex flex-col justify-center gap-0.5 border-l-2 border-background px-4 py-2">
+                      <span className="text-xs font-bold uppercase tracking-wide">Nota LogBuster</span>
+                      <span className="text-lg font-bold">
+                        ({currentRating.reviewsCount}{" "}
+                        {currentRating.reviewsCount === 1 ? "avaliação" : "avaliações"})
+                      </span>
+                    </span>
+                  </>
+                ) : (
+                  <span className="flex flex-col justify-center gap-0.5 px-5 py-3">
+                    <span className="text-xs font-bold uppercase tracking-wide">Nota LogBuster</span>
+                    <span className="text-lg font-bold">Ainda sem avaliações</span>
+                  </span>
+                )}
+              </div>
+
               {/* Sinopse */}
               <div className="pt-1">
-                <p className="text-sm sm:text-base leading-relaxed text-foreground">
+                <p className="font-reading max-w-[68ch] text-lg text-foreground">
                   {movie.plot ?? "Sinopse não informada."}
                 </p>
               </div>
@@ -155,29 +175,12 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
               {/* Ficha técnica e avaliação */}
               <div className="space-y-2 pt-2 text-sm">
                 <p className="text-muted">
-                  <span className="text-muted">Direção</span>{" "}
+                  <span className="text-xs font-bold uppercase tracking-wide text-muted">Direção</span>{" "}
                   <span className="text-foreground">{movie.director ?? "Não informada"}</span>
                 </p>
                 <p className="text-muted">
-                  <span className="text-muted">Elenco</span>{" "}
+                  <span className="text-xs font-bold uppercase tracking-wide text-muted">Elenco</span>{" "}
                   <span className="text-foreground">{movie.actors ?? "Não informado"}</span>
-                </p>
-                <p className="text-muted">
-                  <span className="text-muted">Nota LogBuster</span>{" "}
-                  {currentRating && currentRating.reviewsCount > 0 && currentRating.averageRating !== null ? (
-                    <span className="text-secondary font-medium">
-                      <span>{formatRating(currentRating.averageRating)}</span>
-                      <span>
-                        {" "}
-                        / 5 ({currentRating.reviewsCount}{" "}
-                        {currentRating.reviewsCount === 1 ? "avaliação" : "avaliações"})
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="text-secondary font-medium">
-                      Ainda sem avaliações
-                    </span>
-                  )}
                 </p>
               </div>
             </div>
@@ -185,7 +188,7 @@ function MovieDetailContent({ movieId, initialMovie, children }: MovieDetailProp
 
           {/* Slot inferior reservado para a seção de avaliações (RN-04) */}
           {children ? (
-            <section className="border-t border-border pt-8" aria-label="Avaliações do filme">
+            <section className="border-t-2 border-foreground pt-5" aria-label="Avaliações do filme">
               {children}
             </section>
           ) : null}

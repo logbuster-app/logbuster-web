@@ -93,6 +93,27 @@ describe("ReviewModal", () => {
     expect(window.localStorage.getItem("logbuster:review_author_name")).toBe("Thyago");
   });
 
+  it("pede confirmação antes de descartar um texto digitado", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+
+    await user.type(screen.getByLabelText(/sua análise/i), "Um argumento que não pode se perder.");
+    await user.keyboard("{Escape}");
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByText("Descartar sua análise?")).toBeInTheDocument();
+
+    // Esc de novo volta a escrever e preserva o texto.
+    await user.keyboard("{Escape}");
+    expect(screen.queryByText("Descartar sua análise?")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/sua análise/i)).toHaveValue("Um argumento que não pode se perder.");
+
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+    await user.click(screen.getByRole("button", { name: "Descartar" }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it("fecha com Escape e com Cancelar quando não está enviando", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

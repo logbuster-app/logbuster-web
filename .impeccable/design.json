@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T12:00:00Z",
+  "title": "Design System: LogBuster",
+  "extensions": {
+    "colorMeta": {
+      "vermelhao": { "role": "primary", "displayName": "Vermelhão de Urucum", "canonical": "#E8452C", "tonalRamp": ["#4A130B", "#7E2214", "#B8321D", "#E8452C", "#F2573E", "#F26B50", "#F8A08E", "#FCD3CA"] },
+      "osso": { "role": "secondary", "displayName": "Osso", "canonical": "#EDE3CE", "tonalRamp": ["#4D4238", "#968B78", "#B9AD97", "#D3C8B2", "#EDE3CE", "#F2EBDB", "#F7F2E7", "#FBF9F3"] },
+      "xilogravura": { "role": "neutral", "displayName": "Preto de Xilogravura", "canonical": "#14100E", "tonalRamp": ["#14100E", "#1D1814", "#271F1A", "#33291F", "#4D4238", "#6B5F51", "#968B78", "#B9AD97"] },
+      "ocre-spoiler": { "role": "tertiary", "displayName": "Ocre de Spoiler", "canonical": "#E0A91A", "tonalRamp": ["#3D2D05", "#6B4E0A", "#9A7410", "#C28F16", "#E0A91A", "#EBBE4A", "#F3D480", "#F9E8B8"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Título de cartaz", "purpose": "Título do filme; Archivo wdth 62%, peso 900, caixa alta, 48px (72px de sm)." },
+      "headline": { "displayName": "Título de seção", "purpose": "Seções e wordmark; mesma voz condensada, 36px." },
+      "title": { "displayName": "Título de painel", "purpose": "Estados, confirmação de descarte, contagem do carimbo." },
+      "body": { "displayName": "Leitura", "purpose": "Sinopse e análises em Source Serif 4, 18px, ~68ch." },
+      "ui": { "displayName": "Interface", "purpose": "Archivo normal, 14px, metadados e campos." },
+      "label": { "displayName": "Rótulo", "purpose": "Botões, rótulos e chips em caixa alta, 12 a 14px, peso 700." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "color-transition", "value": "transition-colors (150ms, ease padrão do Tailwind)", "purpose": "Única animação de interface; prefers-reduced-motion reduz para 0,01ms." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Faixa do Cabeçalho",
+      "kind": "nav",
+      "refersTo": "header-band",
+      "description": "Faixa vermelha de largura total (64px) com o wordmark em display.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-wordmark\" href=\"#\">Log<span>Buster</span></a></header>",
+      "css": ".ds-header { background: var(--color-primary, #E8452C); color: var(--color-primary-foreground, #14100E); height: 64px; display: flex; align-items: center; padding: 0 24px; } .ds-wordmark { font-family: Archivo, sans-serif; font-stretch: 62%; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; font-size: 36px; color: inherit; text-decoration: none; } .ds-wordmark span { color: var(--color-foreground, #EDE3CE); } .ds-wordmark:focus-visible { outline: 2px solid var(--color-primary-foreground, #14100E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão Primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal em vermelhão chapado com tinta preta.",
+      "html": "<button class=\"ds-btn-primary\">Avaliar filme</button>",
+      "css": ".ds-btn-primary { background: var(--color-primary, #E8452C); color: var(--color-primary-foreground, #14100E); height: 44px; padding: 0 20px; border: 0; border-radius: 0; font-weight: 700; font-size: 14px; letter-spacing: 0.025em; text-transform: uppercase; cursor: pointer; transition: background-color 150ms; } .ds-btn-primary:hover { background: var(--color-primary-hover, #F2573E); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-primary-text, #F26B50); outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão de Contorno",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Ação secundária: contorno de 2px, texto apagado, hover em osso.",
+      "html": "<button class=\"ds-btn-outline\">Cancelar</button>",
+      "css": ".ds-btn-outline { background: transparent; color: var(--color-muted, #B9AD97); height: 44px; padding: 0 20px; border: 2px solid var(--color-border, #4D4238); border-radius: 0; font-weight: 700; font-size: 14px; letter-spacing: 0.025em; text-transform: uppercase; cursor: pointer; transition: color 150ms, border-color 150ms; } .ds-btn-outline:hover { color: var(--color-foreground, #EDE3CE); border-color: var(--color-foreground, #EDE3CE); } .ds-btn-outline:focus-visible { outline: 2px solid var(--color-primary-text, #F26B50); outline-offset: 2px; }"
+    },
+    {
+      "name": "Busca",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Campo com moldura de osso e botão Buscar colado à direita.",
+      "html": "<form class=\"ds-search\"><input class=\"ds-input\" type=\"search\" placeholder=\"Busque um filme pelo título\"><button class=\"ds-search-btn\" type=\"submit\">Buscar</button></form>",
+      "css": ".ds-search { display: flex; max-width: 672px; } .ds-input { flex: 1; min-width: 0; height: 48px; padding: 0 16px; background: var(--color-surface, #1D1814); color: var(--color-foreground, #EDE3CE); border: 2px solid var(--color-foreground, #EDE3CE); border-radius: 0; font-size: 16px; } .ds-input::placeholder { color: var(--color-subtle, #968B78); } .ds-input:focus-visible { outline: 2px solid var(--color-primary-text, #F26B50); outline-offset: 2px; } .ds-search-btn { height: 48px; padding: 0 24px; background: var(--color-primary, #E8452C); color: var(--color-primary-foreground, #14100E); border: 0; border-radius: 0; font-weight: 700; letter-spacing: 0.025em; text-transform: uppercase; cursor: pointer; } .ds-search-btn:hover { background: var(--color-primary-hover, #F2573E); }"
+    },
+    {
+      "name": "Carimbo de Mérito (líder)",
+      "kind": "custom",
+      "refersTo": "merit-stamp-leader",
+      "description": "Gesto de assinatura: bloco vermelho cheio com a contagem de Bem argumentada na análise líder.",
+      "html": "<button class=\"ds-stamp ds-stamp-leader\"><span class=\"ds-stamp-label\">Bem argumentada</span><span class=\"ds-stamp-count\">42</span></button>",
+      "css": ".ds-stamp { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; width: 152px; text-align: left; border: 2px solid var(--color-foreground, #EDE3CE); border-radius: 0; background: transparent; color: var(--color-foreground, #EDE3CE); cursor: pointer; transition: color 150ms, border-color 150ms; } .ds-stamp-label, .ds-stamp-count { font-family: Archivo, sans-serif; font-stretch: 62%; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; } .ds-stamp-label { font-size: 18px; } .ds-stamp-count { font-size: 48px; } .ds-stamp-leader { background: var(--color-primary, #E8452C); border-color: var(--color-primary, #E8452C); color: var(--color-primary-foreground, #14100E); } .ds-stamp:focus-visible { outline: 2px solid var(--color-primary-text, #F26B50); outline-offset: 2px; }"
+    },
+    {
+      "name": "Carimbo de Mérito (voto próprio)",
+      "kind": "custom",
+      "refersTo": "merit-stamp-voted",
+      "description": "Voto do próprio visitante: bloco osso com texto escuro.",
+      "html": "<button class=\"ds-stamp2 ds-stamp2-voted\"><span class=\"ds-stamp2-label\">Bem argumentada</span><span class=\"ds-stamp2-count\">7</span></button>",
+      "css": ".ds-stamp2 { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; width: 152px; text-align: left; border: 2px solid var(--color-foreground, #EDE3CE); border-radius: 0; background: transparent; color: var(--color-foreground, #EDE3CE); cursor: pointer; transition: color 150ms, border-color 150ms; } .ds-stamp2-label, .ds-stamp2-count { font-family: Archivo, sans-serif; font-stretch: 62%; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; } .ds-stamp2-label { font-size: 18px; } .ds-stamp2-count { font-size: 48px; } .ds-stamp2-voted { background: var(--color-foreground, #EDE3CE); color: var(--color-background, #14100E); } .ds-stamp2:not(.ds-stamp2-voted):hover { color: var(--color-primary-text, #F26B50); border-color: var(--color-primary-text, #F26B50); } .ds-stamp2:focus-visible { outline: 2px solid var(--color-primary-text, #F26B50); outline-offset: 2px; }"
+    },
+    {
+      "name": "Etiqueta da Nota",
+      "kind": "custom",
+      "refersTo": "rating-label",
+      "description": "Nota LogBuster em bloco osso com texto escuro.",
+      "html": "<p class=\"ds-rating\"><span class=\"ds-rating-label\">Nota LogBuster</span><span class=\"ds-rating-value\">4,5</span> / 5 (12 avaliações)</p>",
+      "css": ".ds-rating { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin: 0; padding: 8px 16px; background: var(--color-foreground, #EDE3CE); color: var(--color-background, #14100E); font-weight: 700; } .ds-rating-label { font-size: 12px; letter-spacing: 0.025em; text-transform: uppercase; } .ds-rating-value { font-family: Archivo, sans-serif; font-stretch: 62%; font-weight: 900; font-size: 24px; line-height: 0.95; }"
+    },
+    {
+      "name": "Aviso de Spoiler",
+      "kind": "custom",
+      "refersTo": "spoiler-warning",
+      "description": "Painel com borda de ocre; o ocre é exclusivo de spoiler.",
+      "html": "<div class=\"ds-spoiler\"><div class=\"ds-spoiler-title\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\" aria-hidden=\"true\"><path d=\"M12 3 2 21h20L12 3Z\"/><path d=\"M12 10v5M12 18v.5\"/></svg><span>Esta avaliação contém spoiler</span></div><p>O conteúdo foi ocultado para proteger sua experiência cinematográfica.</p><a class=\"ds-spoiler-link\" href=\"#\">Mostrar análise</a></div>",
+      "css": ".ds-spoiler { padding: 16px; background: var(--color-surface, #1D1814); border: 2px solid var(--color-warning, #E0A91A); border-radius: 0; } .ds-spoiler-title { display: flex; align-items: center; gap: 8px; color: var(--color-warning, #E0A91A); font-size: 14px; font-weight: 700; letter-spacing: 0.025em; text-transform: uppercase; } .ds-spoiler p { margin: 8px 0; color: var(--color-muted, #B9AD97); font-size: 14px; } .ds-spoiler-link { display: inline-flex; min-height: 44px; align-items: center; color: var(--color-primary-text, #F26B50); font-size: 14px; font-weight: 700; letter-spacing: 0.025em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px; } .ds-spoiler-link:hover { color: var(--color-foreground, #EDE3CE); }"
+    },
+    {
+      "name": "Painel de Estado",
+      "kind": "card",
+      "refersTo": "dialog",
+      "description": "Mensagem de vazio ou erro: borda de 2px, título em display.",
+      "html": "<div class=\"ds-state\"><p class=\"ds-state-title\">Nenhuma avaliação ainda</p><p class=\"ds-state-desc\">Seja o primeiro a avaliar este filme!</p></div>",
+      "css": ".ds-state { padding: 24px; text-align: center; background: var(--color-surface, #1D1814); border: 2px solid var(--color-border, #4D4238); border-radius: 0; } .ds-state-title { margin: 0; font-family: Archivo, sans-serif; font-stretch: 62%; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.95; font-size: 24px; color: var(--color-foreground, #EDE3CE); } .ds-state-desc { margin: 8px 0 0; font-size: 14px; color: var(--color-muted, #B9AD97); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Cartaz do Cinema Novo",
+    "overview": "A crítica brasileira de cinema impressa como cartaz: cor chapada, letra condensada pesada e cantos retos, como recortes de papel sobre preto quente de xilogravura. O argumento é o produto, então o voto de mérito é o elemento mais forte de cada análise. O mundo visual empresta só quatro coisas (tipografia, paleta, densidade e um gesto de assinatura); navegação e controles continuam padrões da web.",
+    "keyCharacteristics": [
+      "Fundo preto quente, texto em osso (nunca branco puro), vermelhão chapado para marca, ação e mérito.",
+      "Títulos em Archivo condensado a 62%, peso 900, caixa alta; leitura longa em serifa.",
+      "Cantos retos, bordas de 2px, sem sombras e sem gradientes.",
+      "Estado dito por forma e peso (bloco cheio, bloco osso, contorno), não só por cor.",
+      "Sem cartões aninhados: itens de lista são linhas separadas por régua."
+    ],
+    "rules": [
+      { "name": "The Ocre Is Spoiler Rule", "body": "O ocre existe só para spoiler. Estrelas e notas usam osso.", "section": "colors" },
+      { "name": "The Ink On Red Rule", "body": "Sobre vermelhão ou osso o texto é tinta preta (primary-foreground); nunca osso sobre vermelhão.", "section": "colors" },
+      { "name": "The Semantic Token Rule", "body": "Telas usam só classes semânticas (bg-surface, text-muted, bg-primary); hex solto em .tsx é proibido.", "section": "colors" },
+      { "name": "The Poster Voice Rule", "body": "A utilidade font-display (condensada, 900, caixa alta) é a voz de títulos e rótulos de destaque; texto corrido nunca a usa.", "section": "typography" },
+      { "name": "The Reading Measure Rule", "body": "Texto longo é serifa (font-reading) com no máximo ~68 caracteres por linha.", "section": "typography" },
+      { "name": "The Flat Print Rule", "body": "Nenhum box-shadow e nenhum gradiente. Hierarquia por peso e forma.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usar vermelhão para marca, ação principal e mérito; osso para texto, molduras e estrelas.",
+      "Do dizer o estado por forma e peso (bloco cheio, bloco osso, contorno) além da cor.",
+      "Do separar itens de lista por régua de 2px (border-t-2) em vez de cartões.",
+      "Do manter cantos retos (rounded-card), bordas de 2px e alvos de 44px.",
+      "Do compor texto longo em font-reading a ~68ch e títulos em font-display.",
+      "Do desenhar ícones como SVG de traço único."
+    ],
+    "donts": [
+      "Don't usar ocre fora de spoiler (nem em estrelas, notas ou realces genéricos).",
+      "Don't usar roxo, âmbar, cartões arredondados de 12px, sombras ou gradientes: pertencem à identidade anterior.",
+      "Don't usar branco puro, hex solto em .tsx ou emoji.",
+      "Don't aninhar cartões dentro de cartões.",
+      "Don't colocar texto osso sobre vermelhão chapado.",
+      "Don't usar font-display em texto corrido."
+    ]
+  }
+}

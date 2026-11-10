@@ -12,10 +12,10 @@ function SearchFallback() {
   return (
     <section className="space-y-8 animate-pulse" aria-busy="true">
       <div className="space-y-2">
-        <div className="h-8 w-64 rounded bg-surface-raised" />
-        <div className="h-4 w-80 rounded bg-surface-raised" />
+        <div className="h-12 w-72 bg-surface-raised" />
+        <div className="h-4 w-80 bg-surface-raised" />
       </div>
-      <div className="h-12 w-full max-w-2xl rounded-card bg-surface-raised border border-border" />
+      <div className="h-12 w-full max-w-2xl rounded-card bg-surface-raised border-2 border-border" />
     </section>
   );
 }

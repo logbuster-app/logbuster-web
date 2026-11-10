@@ -12,7 +12,7 @@ export default function GlobalNotFound() {
       <div>
         <Link
           href="/"
-          className="inline-flex h-10 items-center justify-center rounded-card bg-primary px-6 text-sm font-semibold text-primary-contrast transition-opacity hover:opacity-90"
+          className="inline-flex h-11 items-center justify-center rounded-card bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           Voltar para a página inicial
         </Link>

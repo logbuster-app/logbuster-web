@@ -1,11 +1,15 @@
 import Link from "next/link";
 
+/** Faixa vermelha cheia, como a tarja de um cartaz: o nome em letra condensada pesada. */
 export function SiteHeader() {
   return (
-    <header className="border-b border-border bg-surface">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center px-4">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          Log<span className="text-primary-text">Buster</span>
+    <header className="bg-primary text-primary-foreground">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-4 sm:px-6">
+        <Link
+          href="/"
+          className="font-display text-4xl focus-visible:outline-primary-foreground"
+        >
+          Log<span className="text-foreground">Buster</span>
         </Link>
       </div>
     </header>

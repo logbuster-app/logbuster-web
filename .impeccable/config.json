@@ -1,0 +1,60 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/canon.html"
+        ],
+        "createdAt": "2026-11-10T02:51:08.562Z",
+        "reason": "Agent: canon card sketch is the category standard played straight by design; Inter is intentional there"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/*.html"
+        ],
+        "createdAt": "2026-11-10T03:31:08.499Z",
+        "reason": "Agent: decision-page sketches deliberately show alternative directions with their own fonts; they are not the shipped system"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/*.html"
+        ],
+        "createdAt": "2026-11-10T03:31:19.172Z",
+        "reason": "Agent: decision-page sketches show alternative directions; not the shipped system"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/*.html"
+        ],
+        "createdAt": "2026-11-10T03:31:19.922Z",
+        "reason": "Agent: decision-page sketches show alternative directions; not the shipped system"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/*.html"
+        ],
+        "createdAt": "2026-11-10T03:31:20.663Z",
+        "reason": "Agent: decision-page sketches show alternative directions; not the shipped system"
+      }
+    ]
+  }
+}

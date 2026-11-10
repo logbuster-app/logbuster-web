@@ -1,50 +1,68 @@
 @import "tailwindcss";
 
 /*
- * Design tokens oficiais do LogBuster (SPEC-UI-01).
+ * Design tokens do LogBuster: identidade "Cartaz do Cinema Novo" (docs/identidade-visual.md).
  * Regra: telas usam exclusivamente tokens semânticos (bg-surface, text-muted, bg-primary...),
  * nunca hex solto. Para mudar a identidade, edite somente este bloco.
  */
 @theme {
-  /* Marca: roxo profundo */
-  --color-brand-300: #c4a3e6;
-  --color-brand-400: #a77bd6;
-  --color-brand-500: #8049b8;
-  --color-brand-600: #5b2a86;
-  --color-brand-700: #46206a;
-  --color-brand-800: #331750;
-  --color-brand-900: #200e33;
+  /* Marca: vermelhão de urucum */
+  --color-brand-300: #f8a08e;
+  --color-brand-400: #f26b50;
+  --color-brand-500: #f2573e;
+  --color-brand-600: #e8452c;
+  --color-brand-700: #b8321d;
+  --color-brand-800: #7e2214;
+  --color-brand-900: #4a130b;
 
   /* Semânticos */
   --color-primary: var(--color-brand-600);
   --color-primary-hover: var(--color-brand-500);
-  --color-primary-foreground: #ffffff;
-  --color-primary-text: var(--color-brand-400); /* acento legível sobre fundo escuro */
-  --color-secondary: #f5b544; /* destaque quente: notas e estrelas */
-  --color-secondary-foreground: #1a1205;
+  --color-primary-foreground: #14100e; /* tinta preta sobre o vermelhão (4,75:1) */
+  --color-primary-text: var(--color-brand-400); /* acento legível sobre fundo escuro (5,6:1) */
+  --color-secondary: #ede3ce; /* osso: estrelas e notas (o ocre fica só para spoiler) */
+  --color-secondary-foreground: #14100e;
 
-  /* Superfícies */
-  --color-background: #0e0e13;
-  --color-surface: #16161d;
-  --color-surface-raised: #1e1e28;
-  --color-border: #2a2a37;
+  /* Superfícies: preto quente de xilogravura */
+  --color-background: #14100e;
+  --color-surface: #1d1814;
+  --color-surface-raised: #271f1a;
+  --color-border: #4d4238;
 
-  /* Texto */
-  --color-foreground: #ececf3;
-  --color-muted: #a3a3b5;
-  --color-subtle: #7a7a8c;
+  /* Texto: osso, nunca branco puro */
+  --color-foreground: #ede3ce;
+  --color-muted: #b9ad97;
+  --color-subtle: #968b78;
 
   /* Estados */
-  --color-success: #34b27b;
-  --color-warning: #e8a33d;
-  --color-danger: #e5484d;
-  --color-info: #6e9bf5;
+  --color-success: #4caf7d;
+  --color-warning: #e0a91a; /* aviso de spoiler: ocre */
+  --color-danger: #ff8f80;
+  --color-info: #7fb0ff;
 
-  /* Tipografia: sem serifa, fontes do sistema (sem dependência de rede) */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  /* Tipografia: letra condensada pesada para títulos, serifa para leitura de críticas */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
 
-  --radius-card: 0.75rem;
+  /* Cantos retos: tudo é recorte de papel */
+  --radius-card: 0;
+}
+
+/* Voz de cartaz: condensada, pesada, caixa alta. Usada em títulos e rótulos de destaque. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-stretch: 62%;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+@utility font-reading {
+  font-family: var(--font-serif);
+  line-height: 1.65;
 }
 
 :root {
@@ -55,9 +73,30 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  caret-color: var(--color-primary-text);
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-primary-text);
   outline-offset: 2px;
+}
+
+/* Barra de rolagem na mesma paleta */
+html {
+  scrollbar-color: var(--color-border) var(--color-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

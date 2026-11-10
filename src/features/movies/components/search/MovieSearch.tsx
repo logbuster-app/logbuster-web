@@ -16,8 +16,8 @@ export function MovieSearch() {
 
   return (
     <section className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Encontre um filme</h1>
+      <div className="space-y-3">
+        <h1 className="font-display text-5xl sm:text-7xl">Encontre um filme</h1>
         <p className="text-muted">Busque pelo título e comece a registrar o que você assistiu.</p>
       </div>
 
@@ -60,7 +60,7 @@ export function MovieSearch() {
                 type="button"
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="h-11 rounded-card border border-border bg-surface-raised px-6 font-semibold transition-colors hover:border-primary-text disabled:opacity-60"
+                className="h-12 rounded-card border-2 border-foreground px-8 font-bold uppercase tracking-wide transition-colors hover:border-primary-text hover:text-primary-text disabled:opacity-60"
               >
                 {loadingMore ? "Carregando…" : "Carregar mais"}
               </button>

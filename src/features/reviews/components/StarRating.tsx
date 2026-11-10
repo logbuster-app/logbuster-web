@@ -1,4 +1,5 @@
 import React from "react";
+import { StarIcon } from "./StarIcon";
 
 export function StarRating({ rating }: { rating: number }) {
   const clampedRating = Math.max(0.5, Math.min(5.0, rating));
@@ -21,19 +22,25 @@ export function StarRating({ rating }: { rating: number }) {
 
   return (
     <div
-      className="inline-flex items-center gap-1.5"
+      className="inline-flex items-center gap-2"
       aria-label={`Nota: ${formatted} de 5 estrelas`}
     >
       <div className="flex items-center gap-0.5 text-secondary" aria-hidden="true">
         {stars.map((type, i) => (
-          <span key={i} className="text-base leading-none">
-            {type === "full" && "★"}
-            {type === "half" && "⯨"}
-            {type === "empty" && <span className="text-subtle">☆</span>}
+          <span key={i} className="relative inline-flex size-5">
+            <StarIcon className="size-5 text-subtle" />
+            {type !== "empty" ? (
+              <span
+                className="absolute inset-y-0 left-0 overflow-hidden"
+                style={{ width: type === "full" ? "100%" : "50%" }}
+              >
+                <StarIcon filled className="size-5 text-secondary" />
+              </span>
+            ) : null}
           </span>
         ))}
       </div>
-      <span className="text-xs font-semibold text-secondary">
+      <span className="text-sm font-bold text-secondary">
         {formatted} <span className="font-normal text-muted">/ 5</span>
       </span>
     </div>

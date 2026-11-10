@@ -1,34 +1,26 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { MovieSummary } from "../../types";
+import { PosterImage } from "../PosterImage";
 
 export function MovieCard({ movie }: { movie: MovieSummary }) {
   return (
     <Link
       href={`/movies/${movie.id}`}
-      className="group block rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text"
+      className="group block rounded-card focus-visible:outline-offset-4"
       aria-label={`Ver detalhes de ${movie.title}`}
     >
-      <article className="overflow-hidden rounded-card border border-border bg-surface transition-colors group-hover:border-primary-text">
-        <div className="relative aspect-[2/3] bg-surface-raised">
-          {movie.posterUrl ? (
-            <Image
-              src={movie.posterUrl}
-              alt={`Poster de ${movie.title}`}
-              fill
-              sizes="(min-width: 1024px) 16vw, (min-width: 640px) 25vw, 50vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center p-3 text-center text-sm text-subtle">
-              Sem poster
-            </div>
-          )}
+      <article>
+        <div className="relative aspect-[2/3] overflow-hidden border-2 border-border bg-surface-raised transition-colors group-hover:border-primary-text">
+          <PosterImage
+            src={movie.posterUrl}
+            alt={`Poster de ${movie.title}`}
+            sizes="(min-width: 1024px) 16vw, (min-width: 640px) 25vw, 50vw"
+          />
         </div>
-        <div className="p-3">
-          <h3 className="line-clamp-2 text-sm font-semibold group-hover:text-primary-text transition-colors">
+        <div className="pt-3">
+          <h2 className="line-clamp-2 text-sm font-bold uppercase leading-tight tracking-wide transition-colors group-hover:text-primary-text">
             {movie.title}
-          </h3>
+          </h2>
           <p className="mt-1 text-xs text-muted">{movie.year}</p>
         </div>
       </article>

@@ -31,14 +31,14 @@ export default function MovieDetailError({
         <button
           type="button"
           onClick={() => reset()}
-          className="h-10 rounded-card bg-primary px-5 text-sm font-semibold text-primary-contrast transition-opacity hover:opacity-90"
+          className="h-11 rounded-card bg-primary px-5 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           Tentar novamente
         </button>
 
         <Link
           href="/"
-          className="inline-flex h-10 items-center rounded-card border border-border bg-surface-raised px-5 text-sm font-semibold transition-colors hover:border-primary-text"
+          className="inline-flex h-11 items-center rounded-card border-2 border-foreground px-5 text-sm font-bold uppercase tracking-wide transition-colors hover:border-primary-text hover:text-primary-text"
         >
           Voltar para a busca
         </Link>
