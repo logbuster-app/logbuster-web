@@ -3,7 +3,7 @@
 ## O que a tela faz
 
 - Campo de busca por título (envia ao clicar em Buscar ou pressionar Enter).
-- Consulta GET à OMDb pelo front.
+- Consulta `GET /api/v1/movies` ao backend, responsável pela integração com a OMDb.
 - Grid de resultados com poster, título e ano.
 - Paginação por botão **Carregar mais** (10 por página).
 - Estados: inicial, carregando, vazio, erro e erro ao carregar mais.
@@ -26,4 +26,4 @@
 
 ## Testes
 
-`omdb.test.ts`, `SearchBar.test.tsx`, `MovieGrid.test.tsx` e `MovieSearch.test.tsx` cobrem a camada de API, os componentes e o fluxo completo com `fetch` mockado.
+`moviesClient.test.ts`, `SearchBar.test.tsx`, `MovieGrid.test.tsx` e `MovieSearch.test.tsx` cobrem a camada de API, os componentes e o fluxo completo com `fetch` mockado.

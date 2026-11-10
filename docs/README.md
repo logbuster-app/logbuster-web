@@ -9,7 +9,7 @@ Front-end do LogBuster, uma plataforma para registrar, avaliar e descobrir filme
 | Framework | Next.js (App Router) com TypeScript |
 | Estilo | Tailwind CSS v4 com tokens de design em `globals.css` |
 | Testes | Vitest e Testing Library, cobertura via V8 |
-| Dados de filmes | OMDb API, consultada direto pelo front |
+| Dados de filmes | Backend LogBuster, que consulta a OMDb |
 | Docs | Docsify (esta documentação) |
 
 ## Estado atual (Épico de Filmes, front)

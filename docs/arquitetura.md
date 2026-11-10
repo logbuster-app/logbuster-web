@@ -47,7 +47,7 @@ componente  →  hook (estado)  →  service da feature (api/)  →  cliente em 
 2. **`shared/api/clients.ts`** cria as instâncias: `internalApi` (rotas `/api/*` do Next) e `backendApi` (FastAPI, já com `X-Visitor-Id`).
 3. **Cada feature tem seus services em `api/`**: funções que conhecem só os endpoints da feature, chamam `internalApi`/`backendApi` e devolvem o **modelo de domínio** (via mapper). Nova consulta = nova função aqui.
 4. **Componentes e hooks nunca usam `fetch`** nem o `apiClient` direto: só os services.
-5. **Segredos só no servidor.** A OMDb usa `OMDB_API_KEY` (sem `NEXT_PUBLIC_`) e é acessada por `features/movies/server.ts` (Route Handlers e Server Components). O navegador passa por `/api/movies/*`.
+5. **Segredos só no backend.** As consultas de filmes usam `backendApi`; a chave OMDb é configurada apenas no LogBuster API. `features/movies/server.ts` expõe o mesmo serviço para Server Components.
 
 ### Como adicionar uma consulta nova
 

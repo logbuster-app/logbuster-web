@@ -11,11 +11,11 @@ vi.mock("next/navigation", () => ({
 import { MovieSearch } from "./MovieSearch";
 
 function item(n: number) {
-  return { id: `tt${n}`, title: `Filme ${n}`, year: "2000", posterUrl: null };
+  return { id: `tt${n}`, title: `Filme ${n}`, year: "2000", poster_url: null };
 }
 
 function pageOf(movies: ReturnType<typeof item>[], total: number, page = 1) {
-  return { movies, total, page, pageSize: 10 };
+  return { items: movies, total, page, page_size: 10 };
 }
 
 function respond(body: unknown) {
@@ -104,7 +104,7 @@ describe("MovieSearch", () => {
     await waitFor(() =>
       expect(screen.queryByRole("button", { name: "Carregar mais" })).not.toBeInTheDocument(),
     );
-    expect(fetchMock.mock.calls[1][0]).toBe("/api/movies/search?q=filme&page=2");
+    expect(fetchMock.mock.calls[1][0]).toBe("http://localhost:8000/api/v1/movies?q=filme&page=2");
   });
 
   it("avisa quando falha ao carregar mais, mantendo os resultados", async () => {

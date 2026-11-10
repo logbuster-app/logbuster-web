@@ -19,13 +19,13 @@ Permite que o usuário acerte ou clique em qualquer filme listado na busca (`Mov
 | `src/features/movies/components/detail/MovieDetail.tsx` | Componente visual da ficha do filme em 2 colunas responsivas |
 | `src/features/movies/components/search/MovieCard.tsx` | Card navegável acessível envolvido com `Link` para `/movies/[id]` |
 | `src/features/movies/hooks/useMovieDetail.ts` | Hook de gerenciamento de ciclo de vida, estados e recarga |
-| `src/features/movies/api/omdb.ts` | Função `getMovieById(id, signal)` e mapper `toMovieDetail` |
+| `src/features/movies/api/moviesClient.ts` | Consulta ao backend e conversão para o modelo de domínio |
 | `src/features/movies/types.ts` | Modelo de domínio `MovieDetail` |
 
 ## Testes
 
 Cobertura com Vitest e Testing Library:
-- `omdb.test.ts`: Testa mapeamento de sucesso, normalização de campos `"N/A"`, filme inexistente (`null`), erros de chave/API e cancelamento de requisição.
+- `moviesClient.test.ts`: Testa o mapeamento do backend, filme inexistente, erros e cancelamento.
 - `MovieCard.test.tsx`: Garante presença do link acessível para `/movies/[id]` e renderização de pôster/fallback.
 - `useMovieDetail.test.ts`: Valida transições de estado (`loading`, `success`, `not_found`, `error`) e função `reload`.
 - `MovieDetail.test.tsx`: Verifica exibição de metadados, ausência da literal `"N/A"`, renderização de fallbacks e injeção de elementos no slot `children`.

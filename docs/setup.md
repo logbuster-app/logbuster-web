@@ -3,7 +3,7 @@
 ## Pré-requisitos
 
 - Node.js 20.9 ou superior (recomendado 22 LTS) e npm.
-- Uma chave gratuita da OMDb: <https://www.omdbapi.com/apikey.aspx>.
+- Backend LogBuster em execução, com a chave OMDb configurada no backend.
 
 No Arch Linux:
 
@@ -16,7 +16,7 @@ sudo pacman -S nodejs npm
 ```bash
 npm install
 cp .env.example .env.local
-# edite .env.local e preencha OMDB_API_KEY
+# edite .env.local e configure NEXT_PUBLIC_API_BASE_URL
 npm run dev
 ```
 
@@ -26,10 +26,10 @@ A aplicação sobe em <http://localhost:3000>.
 
 | Variável | Descrição | Padrão |
 | --- | --- | --- |
-| `OMDB_API_KEY` | Chave da OMDb | vazio (a busca mostra erro de configuração) |
-| `OMDB_BASE_URL` | URL base da OMDb | `https://www.omdbapi.com` |
+| `NEXT_PUBLIC_API_BASE_URL` | Origem do backend LogBuster | `http://localhost:8000` |
+| `NEXT_PUBLIC_USE_API_MOCKS` | Usa mocks de avaliações | `false` |
 
-> Variáveis `NEXT_PUBLIC_*` vão para o bundle do navegador. Isso é aceitável aqui porque a chave da OMDb é gratuita e a consulta é feita pelo front, como definido no escopo.
+> A chave da OMDb pertence à configuração do backend e não deve ser colocada em variáveis `NEXT_PUBLIC_*`. Configure o CORS do backend para permitir a origem do front.
 
 ## Scripts
 
