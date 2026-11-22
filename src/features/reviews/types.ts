@@ -67,3 +67,12 @@ export const REVIEW_SORT_OPTIONS: { value: ReviewSort; label: string }[] = [
   { value: "rating_desc", label: "Maior nota" },
   { value: "rating_asc", label: "Menor nota" },
 ];
+
+/** Resumo da comunidade gerado por IA (GET /movies/{id}/review-summary). */
+export type ReviewSummary =
+  | { status: "ready"; text: string; generatedAt: string }
+  | { status: "insufficient_reviews" }
+  | { status: "unavailable" };
+
+/** Resultado da sugestão de spoiler (POST /reviews/spoiler-check). */
+export type SpoilerCheckStatus = "suspected" | "clear" | "unavailable";

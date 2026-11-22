@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MovieDetail } from "@/features/movies";
 import { getMovieById } from "@/features/movies/server";
-import { ReviewList } from "@/features/reviews";
+import { ReviewList, ReviewSummary } from "@/features/reviews";
 
 type MoviePageProps = {
   params: Promise<{ id: string }>;
@@ -71,7 +71,10 @@ export default async function MoviePage({ params }: MoviePageProps) {
   return (
     <div className="py-6 sm:py-8">
       <MovieDetail movieId={trimmedId} initialMovie={movie}>
-        <ReviewList movieId={trimmedId} />
+        <div className="space-y-6">
+          <ReviewSummary movieId={trimmedId} />
+          <ReviewList movieId={trimmedId} />
+        </div>
       </MovieDetail>
     </div>
   );

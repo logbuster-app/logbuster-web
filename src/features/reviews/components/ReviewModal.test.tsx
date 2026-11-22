@@ -5,6 +5,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const createReviewMock = vi.hoisted(() => vi.fn());
 vi.mock("../api/reviews", () => ({ createReview: createReviewMock }));
 
+const checkSpoilerMock = vi.hoisted(() => vi.fn());
+vi.mock("../api/reviewAi", () => ({ checkSpoiler: checkSpoilerMock }));
+
 import type { Review } from "../types";
 import { ReviewModal } from "./ReviewModal";
 
@@ -25,6 +28,7 @@ describe("ReviewModal", () => {
   beforeEach(() => {
     window.localStorage.clear();
     vi.clearAllMocks();
+    checkSpoilerMock.mockResolvedValue("clear");
   });
 
   async function fillValidForm() {
@@ -155,5 +159,231 @@ describe("ReviewModal", () => {
 
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+});
+
+describe("ReviewModal: sugestão de spoiler", () => {
+  const CONTENT = "No final, o protagonista descobre que tudo era uma simulação.";
+  const PROMPT = "Seu texto parece conter spoiler. Quer marcar como spoiler?";
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.clearAllMocks();
+    createReviewMock.mockResolvedValue(createdReview);
+  });
+
+  async function fillFormWithoutSpoilerFlag(content = CONTENT) {
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "4,5 de 5 estrelas" }));
+    await user.type(screen.getByLabelText(/nome \/ apelido/i), "Thyago");
+    await user.type(screen.getByLabelText(/sua análise/i), content);
+    return user;
+  }
+
+  function renderModal(onCreated = vi.fn()) {
+    render(<ReviewModal movieId="tt0133093" onClose={vi.fn()} onCreated={onCreated} />);
+    return onCreated;
+  }
+
+  it("chama a verificação ao publicar, com o texto já validado", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("clear");
+    renderModal();
+    const user = await fillFormWithoutSpoilerFlag(`  ${CONTENT}  `);
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await waitFor(() => expect(createReviewMock).toHaveBeenCalledTimes(1));
+    expect(checkSpoilerMock).toHaveBeenCalledWith("tt0133093", CONTENT);
+  });
+
+  it("não verifica quando a avaliação é inválida", async () => {
+    renderModal();
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Selecione uma nota");
+    expect(checkSpoilerMock).not.toHaveBeenCalled();
+  });
+
+  it("não verifica quando o autor já marcou spoiler", async () => {
+    renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+    await user.click(screen.getByRole("checkbox", { name: /contém spoilers/i }));
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await waitFor(() => expect(createReviewMock).toHaveBeenCalledTimes(1));
+    expect(checkSpoilerMock).not.toHaveBeenCalled();
+    expect(createReviewMock.mock.calls[0][0]).toMatchObject({ isSpoiler: true });
+  });
+
+  it("mostra 'Verificando...' e bloqueia o fechamento enquanto a IA analisa", async () => {
+    let resolveCheck: (value: string) => void = () => {};
+    checkSpoilerMock.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveCheck = resolve;
+      }),
+    );
+    const onClose = vi.fn();
+    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+    const user = await fillFormWithoutSpoilerFlag();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(screen.getByRole("button", { name: "Verificando..." })).toBeDisabled();
+    await user.keyboard("{Escape}");
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.queryByText("Descartar sua análise?")).not.toBeInTheDocument();
+
+    resolveCheck("clear");
+    await waitFor(() => expect(createReviewMock).toHaveBeenCalledTimes(1));
+  });
+
+  it("publica direto, sem aviso, quando a IA diz 'clear'", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("clear");
+    const onCreated = renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith(createdReview));
+    expect(screen.queryByText(PROMPT)).not.toBeInTheDocument();
+    expect(createReviewMock.mock.calls[0][0]).toMatchObject({ isSpoiler: false });
+  });
+
+  it("publica direto, sem aviso, quando a IA está 'unavailable' (inclui timeout)", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("unavailable");
+    const onCreated = renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith(createdReview));
+    expect(screen.queryByText(PROMPT)).not.toBeInTheDocument();
+  });
+
+  it("'suspected' mostra o aviso e ainda não publica", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("suspected");
+    renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(await screen.findByText(PROMPT)).toBeInTheDocument();
+    expect(createReviewMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Publicar avaliação" })).toBeDisabled();
+  });
+
+  it("'Marcar como spoiler' publica com is_spoiler: true", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("suspected");
+    const onCreated = renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await user.click(await screen.findByRole("button", { name: "Marcar como spoiler" }));
+
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith(createdReview));
+    expect(createReviewMock).toHaveBeenCalledWith(
+      expect.objectContaining({ content: CONTENT, isSpoiler: true }),
+    );
+  });
+
+  it("'Publicar assim mesmo' publica com is_spoiler: false", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("suspected");
+    const onCreated = renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await user.click(await screen.findByRole("button", { name: "Publicar assim mesmo" }));
+
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith(createdReview));
+    expect(createReviewMock).toHaveBeenCalledWith(
+      expect.objectContaining({ content: CONTENT, isSpoiler: false }),
+    );
+  });
+
+  it("não pergunta de novo sobre o mesmo texto se a publicação falhar e o autor tentar outra vez", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("suspected");
+    createReviewMock.mockRejectedValueOnce(new Error("Falha simulada"));
+    const onCreated = renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+    await user.click(await screen.findByRole("button", { name: "Publicar assim mesmo" }));
+    expect(await screen.findByText("Falha simulada")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith(createdReview));
+    expect(checkSpoilerMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("após marcar como spoiler e falhar, o checkbox continua marcado", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("suspected");
+    createReviewMock.mockRejectedValueOnce(new Error("Falha simulada"));
+    renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    await user.click(await screen.findByRole("button", { name: "Marcar como spoiler" }));
+
+    expect(await screen.findByText("Falha simulada")).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /contém spoilers/i })).toBeChecked();
+  });
+
+  it("'Voltar e editar' e Escape fecham o aviso sem publicar nem fechar o modal", async () => {
+    checkSpoilerMock.mockResolvedValue("suspected");
+    const onClose = vi.fn();
+    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+    const user = await fillFormWithoutSpoilerFlag();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+    await user.click(await screen.findByRole("button", { name: "Voltar e editar" }));
+    expect(screen.queryByText(PROMPT)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+    expect(await screen.findByText(PROMPT)).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByText(PROMPT)).not.toBeInTheDocument();
+    expect(screen.queryByText("Descartar sua análise?")).not.toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(createReviewMock).not.toHaveBeenCalled();
+  });
+
+  it("com o aviso aberto, os campos ficam bloqueados; 'Voltar e editar' libera e devolve o foco ao texto", async () => {
+    checkSpoilerMock.mockResolvedValueOnce("suspected");
+    renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+    expect(await screen.findByText(PROMPT)).toBeInTheDocument();
+
+    expect(screen.getByLabelText(/sua análise/i)).toBeDisabled();
+    expect(screen.getByLabelText(/nome \/ apelido/i)).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: /contém spoilers/i })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "Voltar e editar" }));
+
+    const textarea = screen.getByLabelText(/sua análise/i);
+    expect(textarea).toBeEnabled();
+    expect(textarea).toHaveFocus();
+  });
+
+  it("bloqueia os campos enquanto a IA analisa, para o texto não mudar durante a verificação", async () => {
+    let resolveCheck: (value: string) => void = () => {};
+    checkSpoilerMock.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveCheck = resolve;
+      }),
+    );
+    renderModal();
+    const user = await fillFormWithoutSpoilerFlag();
+
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(screen.getByLabelText(/sua análise/i)).toBeDisabled();
+
+    resolveCheck("clear");
+    await waitFor(() => expect(createReviewMock).toHaveBeenCalledTimes(1));
   });
 });

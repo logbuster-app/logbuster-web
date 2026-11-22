@@ -18,7 +18,7 @@ Para teste mockado, configure `NEXT_PUBLIC_USE_API_MOCKS=true` e inicie o front 
 - Nota obrigatória de `0,5` a `5,0`, em incrementos de `0,5`.
 - Nome/apelido obrigatório entre 2 e 50 caracteres, após `trim()`. O último nome publicado é salvo localmente para facilitar a próxima avaliação.
 - Análise obrigatória entre 10 e 2000 caracteres, após `trim()`, com contador visível.
-- Marcação provisória de spoiler, desativada por padrão.
+- Marcação provisória de spoiler, desativada por padrão. Ao publicar, a IA pode sugerir a marcação (veja [Resumo e spoiler com IA](resumo-e-spoiler-ia.md)).
 - Até dois destaques: Trilha Sonora, Fotografia, Roteiro, Atuação, Direção e Efeitos Especiais.
 
 Em caso de erro no envio, o modal mostra a mensagem do backend em um alerta e preserva todos os valores preenchidos. Após `201`, fecha, insere imediatamente a avaliação retornada na lista e consulta novamente a média agregada do filme.
