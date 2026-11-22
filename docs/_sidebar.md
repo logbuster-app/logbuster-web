@@ -9,6 +9,6 @@
   - [Ficha do filme](features/detalhe-de-filme.md)
   - [Avaliações e interações](features/avaliacoes-e-interacoes.md)
   - [Cadastro de avaliação](features/cadastro-de-avaliacao.md)
-  - [Resumo e spoiler com IA](features/resumo-e-spoiler-ia.md)
+  - [Resumo da comunidade com IA](features/resumo-da-comunidade.md)
 - [Guia para continuar o front](continuando.md)
 - [Fluxo de entrega (PR)](contribuindo.md)

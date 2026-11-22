@@ -60,7 +60,7 @@ const INITIAL_MOCK_REVIEWS: Review[] = [
     highlights: ["screenplay", "acting"],
     counts: {
       like: 12,
-      spoiler: 4, // spoiler >= 3 deve ativar proteção de spoiler
+      spoiler: 10, // 10 ou mais votos (SPOILER_VOTE_THRESHOLD) ativam a proteção de spoiler
       wellArgued: 15,
     },
     viewerInteractions: [],

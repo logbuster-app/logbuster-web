@@ -17,7 +17,7 @@ O cadastro de novas avaliações está descrito em [Cadastro de avaliação](cad
   - **Curtir** (`like`)
   - **Spoiler** (`spoiler`)
   Clicar envia requisição com o cabeçalho `X-Visitor-Id`. Se o visitante ainda não votou, o voto é registrado e o contador incrementado; se já votou, é desmarcado (toggle) e o contador decrementado.
-- **Proteção Ativa contra Spoilers (RN-03):** Se uma avaliação possuir a flag `isSpoiler: true` **ou** tiver recebido 3 ou mais sinalizações da comunidade (`counts.spoiler >= 3`), seu texto inicia oculto atrás de uma caixa de alerta. Clicar em **"Mostrar análise"** revela o conteúdo apenas naquele card local.
+- **Proteção Ativa contra Spoilers (RN-03):** Se uma avaliação possuir a flag `isSpoiler: true` **ou** tiver recebido 10 ou mais sinalizações da comunidade (`counts.spoiler >= SPOILER_VOTE_THRESHOLD`, valor 10, conforme o CR-02), seu texto inicia oculto atrás de uma caixa de alerta. Clicar em **"Mostrar análise"** revela o conteúdo apenas naquele card local.
 - **Identificação do Visitante (`X-Visitor-Id`):** Gerado como UUID v4 aleatório e persistido em `localStorage` sob a chave `logbuster:visitor_id`, permitindo manter as preferências de voto sem exigir autenticação prévia.
 - **Desacoplamento e Suporte a Mocks:** Pode operar integrado aos endpoints reais do FastAPI (`/api/v1/movies/{id}/reviews` e `/api/v1/reviews/{id}/interactions`) ou através de mocks locais via `NEXT_PUBLIC_USE_API_MOCKS=true` (`reviews.mock.ts`).
 
@@ -44,7 +44,7 @@ O cadastro de novas avaliações está descrito em [Cadastro de avaliação](cad
 - `reviews.mock.test.ts`: Todas as 5 opções de ordenação, desempates e lógica de toggle no mock.
 - `reviews.test.ts`: Mapeamento `toReview`, chamadas GET/POST, consulta de média agregada e delegação ao mock.
 - `StarRating.test.tsx` e `ReviewSortSelector.test.tsx`: Acessibilidade e eventos de seleção.
-- `ReviewCard.test.tsx`: Proteção de spoiler inicial por flag e por threshold `>= 3`, clique em "Mostrar análise" e cliques em cada botão de interação.
+- `ReviewCard.test.tsx`: Proteção de spoiler inicial por flag e por threshold de 10 votos (e visível com 9), clique em "Mostrar análise" e cliques em cada botão de interação.
 - `useMovieReviews.test.ts`: Ciclos de estado, troca de ordenação e feedback de erro de voto.
 - `ReviewList.test.tsx`: Estados `loading`, `empty`, `error`, `success` e alertas de erro ao votar.
 - `ReviewModal.test.tsx`, `StarRatingInput.test.tsx` e `HighlightPicker.test.tsx`: validações, estados de falha e controles do cadastro.

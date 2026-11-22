@@ -1,10 +1,7 @@
 import { env } from "@/shared/config/env";
 import { backendApi } from "@/shared/api/clients";
-import type { ReviewSummary, SpoilerCheckStatus } from "../types";
-import { checkSpoilerMock, fetchReviewSummaryMock } from "./reviewAi.mock";
-
-/** Tempo máximo da sugestão de spoiler. Estourou = tratado como "unavailable". */
-export const SPOILER_CHECK_TIMEOUT_MS = 10_000;
+import type { ReviewSummary } from "../types";
+import { fetchReviewSummaryMock } from "./reviewAi.mock";
 
 /**
  * Teto do resumo. O backend leva até ~21 s para gerar (texto + checagem de spoiler do
@@ -18,10 +15,6 @@ export type BackendReviewSummaryResponse = {
   text?: string | null;
   /** UTC. */
   generated_at?: string | null;
-};
-
-export type BackendSpoilerCheckResponse = {
-  status?: string;
 };
 
 /** Converte a resposta do backend. Qualquer formato inesperado vira "unavailable". */
@@ -104,38 +97,4 @@ export async function fetchReviewSummary(
   }
 
   return rejectWhenAborted(requestReviewSummary(movieId), signal);
-}
-
-/**
- * Pergunta à IA se o texto parece conter spoiler. Só sugere: quem decide é o autor.
- * Nunca lança: falha, resposta inesperada ou timeout (10 s) viram "unavailable",
- * e a publicação segue sem aviso. Funciona sem login.
- */
-export async function checkSpoiler(
-  movieId: string,
-  content: string,
-  timeoutMs: number = SPOILER_CHECK_TIMEOUT_MS,
-): Promise<SpoilerCheckStatus> {
-  if (env.useApiMocks) {
-    return checkSpoilerMock(movieId, content);
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const data = await backendApi.request<BackendSpoilerCheckResponse>(
-      "/api/v1/reviews/spoiler-check",
-      {
-        method: "POST",
-        body: { movie_id: movieId, content },
-        signal: controller.signal,
-      },
-    );
-    return data.status === "suspected" || data.status === "clear" ? data.status : "unavailable";
-  } catch {
-    return "unavailable";
-  } finally {
-    clearTimeout(timer);
-  }
 }

@@ -5,14 +5,12 @@ import {
   MovieRatingProvider,
   useMovieRatingContext,
 } from "@/shared/contexts/MovieRatingContext";
-import * as reviewAiApi from "../api/reviewAi";
 import * as reviewsApi from "../api/reviews";
 import type { Review, ReviewListPage } from "../types";
 import { ReviewList } from "./ReviewList";
 
 describe("ReviewList", () => {
   beforeEach(() => {
-    vi.spyOn(reviewAiApi, "checkSpoiler").mockResolvedValue("clear");
     vi.spyOn(reviewsApi, "fetchMovieRating").mockResolvedValue({
       movieId: "tt0133093",
       averageRating: 4.5,

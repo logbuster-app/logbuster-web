@@ -32,7 +32,7 @@ Diferenciais planejados que reforçam essa tese:
 
 - Fluxo central: busca por título (`/?q=termo`, dados da OMDb) → ficha do filme (`/movies/[id]`) → lista de avaliações → modal "Avaliar filme".
 - Dados de filmes vêm da OMDb (chave só no servidor); avaliações, interações e nota média vêm do backend próprio FastAPI (`logbuster-api`, `/api/v1/...`).
-- `NEXT_PUBLIC_USE_API_MOCKS=true` roda toda a feature de avaliações, incluindo o resumo e a sugestão de spoiler por IA, com mocks locais (demo em `/movies/tt0133093`).
+- `NEXT_PUBLIC_USE_API_MOCKS=true` roda toda a feature de avaliações, incluindo o resumo da comunidade por IA, com mocks locais (demo em `/movies/tt0133093`).
 - Interface e documentação em português (pt-BR); código em inglês. Documentação do time em `docs/` (Docsify).
 
 ## Capabilities and Constraints
@@ -40,11 +40,11 @@ Diferenciais planejados que reforçam essa tese:
 **Existente (Épico de Filmes):**
 - Busca por título com paginação "Carregar mais" e estados inicial/carregando/vazio/erro.
 - Ficha do filme: pôster 2:3, título, ano, duração, gêneros, direção, elenco, sinopse; valores "N/A" da OMDb viram fallbacks em português. "Nota LogBuster" (média da comunidade, formato `4,8`) exibida uma única vez na ficha.
-- Lista de avaliações com 5 ordenações (`well_argued` padrão, `most_liked`, `newest`, `rating_desc`, `rating_asc`), votos em toggle (Bem argumentada, Curtir, Spoiler) e ocultação de spoiler com "Mostrar análise".
+- Lista de avaliações com 5 ordenações (`well_argued` padrão, `most_liked`, `newest`, `rating_desc`, `rating_asc`), votos em toggle (Bem argumentada, Curtir, Spoiler) e ocultação de spoiler (marcação ou 10 votos da comunidade) com "Mostrar análise".
 - Cadastro de avaliação: nota 0,5–5,0 em passos de 0,5; nome/apelido 2–50 caracteres; análise 10–2000 caracteres com contador; spoiler opcional; até dois destaques (Trilha Sonora, Fotografia, Roteiro, Atuação, Direção, Efeitos Especiais). O modal não fecha ao clicar fora, para não perder texto.
 
 - Resumo da comunidade por IA na ficha do filme (3 ou mais avaliações; aviso "Gerado por IA" e data de geração; indisponibilidade não afeta a ficha).
-- Sugestão de spoiler por IA ao publicar: a IA só sugere, o autor decide (marcar ou publicar assim mesmo); falha ou demora publica direto.
+- Spoiler por IA: o backend analisa cada avaliação depois de publicada e marca `is_spoiler` (CR-02); não há consulta à IA no modal.
 
 **Planejado (decidido, ainda não implementado):**
 - Contas e login.

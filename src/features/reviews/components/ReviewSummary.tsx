@@ -24,6 +24,7 @@ export function ReviewSummary({ movieId }: ReviewSummaryProps) {
     <section
       aria-labelledby="review-summary-title"
       aria-busy={state.status === "loading"}
+      aria-live="polite"
       className="space-y-3 rounded-card border-2 border-border bg-surface p-5"
     >
       <h2 id="review-summary-title" className="font-display text-2xl text-foreground">

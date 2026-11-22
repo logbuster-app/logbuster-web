@@ -68,11 +68,14 @@ export const REVIEW_SORT_OPTIONS: { value: ReviewSort; label: string }[] = [
   { value: "rating_asc", label: "Menor nota" },
 ];
 
+/**
+ * Votos de spoiler da comunidade que ocultam uma avaliação sem marcação (CR-02).
+ * Deve ser igual ao limiar usado pelo backend no resumo da comunidade.
+ */
+export const SPOILER_VOTE_THRESHOLD = 10;
+
 /** Resumo da comunidade gerado por IA (GET /movies/{id}/review-summary). */
 export type ReviewSummary =
   | { status: "ready"; text: string; generatedAt: string }
   | { status: "insufficient_reviews" }
   | { status: "unavailable" };
-
-/** Resultado da sugestão de spoiler (POST /reviews/spoiler-check). */
-export type SpoilerCheckStatus = "suspected" | "clear" | "unavailable";

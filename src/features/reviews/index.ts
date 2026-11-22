@@ -11,7 +11,6 @@ export { useMovieReviews } from "./hooks/useMovieReviews";
 export { useCreateReview } from "./hooks/useCreateReview";
 export { useMovieRating } from "./hooks/useMovieRating";
 export { useReviewSummary } from "./hooks/useReviewSummary";
-export { useSpoilerCheck } from "./hooks/useSpoilerCheck";
 export { validateReview, REVIEW_LIMITS } from "./validation";
 export type { ReviewFormValues, ReviewValidationResult } from "./validation";
 export {
@@ -22,7 +21,7 @@ export {
   toReview,
 } from "./api/reviews";
 export type { MovieRating } from "./api/reviews";
-export { checkSpoiler, fetchReviewSummary } from "./api/reviewAi";
+export { fetchReviewSummary } from "./api/reviewAi";
 export {
   fetchReviewsMock,
   toggleInteractionMock,
@@ -37,6 +36,5 @@ export type {
   ReviewListPage,
   CreateReviewInput,
   ReviewSummary as ReviewSummaryData,
-  SpoilerCheckStatus,
 } from "./types";
-export { REVIEW_HIGHLIGHT_LABELS, REVIEW_SORT_OPTIONS } from "./types";
+export { REVIEW_HIGHLIGHT_LABELS, REVIEW_SORT_OPTIONS, SPOILER_VOTE_THRESHOLD } from "./types";

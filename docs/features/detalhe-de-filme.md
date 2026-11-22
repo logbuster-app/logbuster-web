@@ -9,7 +9,7 @@ Permite que o usuário acerte ou clique em qualquer filme listado na busca (`Mov
 - **Normalização de Metadados OMDb (RN-02):** Valores `"N/A"` ou ausentes da API externa são convertidos para `null` (ou lista vazia em `genres`), apresentando fallbacks discretos na UI (como *"Sinopse não informada"*, *"Não informada"*, *"Sem poster"*) sem exibir a string literal `"N/A"`.
 - **Nota da Comunidade LogBuster:** Bloco dedicado à nota média e contagem de avaliações, exibindo *"Ainda sem avaliações"* enquanto não houver registros.
 - **Tratamento de Estados:** Gerencia explicitamente estados de carregamento (`Spinner`), filme não encontrado (`StateMessage` com link de retorno à busca) e erros de rede/serviço (`StateMessage tone="danger"`).
-- **Desacoplamento Arquitetural (RN-04):** A feature `movies` não possui importação direta de `reviews`. A integração da seção de críticas ocorre via slot `children` montado na rota de página Next.js. O slot recebe o bloco "Resumo da comunidade" (`ReviewSummary`) seguido da lista de avaliações; veja [Resumo e spoiler com IA](resumo-e-spoiler-ia.md).
+- **Desacoplamento Arquitetural (RN-04):** A feature `movies` não possui importação direta de `reviews`. A integração da seção de críticas ocorre via slot `children` montado na rota de página Next.js. O slot recebe o bloco "Resumo da comunidade" (`ReviewSummary`) seguido da lista de avaliações; veja [Resumo da comunidade](resumo-da-comunidade.md).
 
 ## Componentes e Arquivos
 
