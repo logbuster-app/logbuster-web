@@ -69,6 +69,7 @@ Fontes hospedadas pelo `next/font` (baixadas no build, sem requisição externa 
 - **Bordas de 2px** (`border-2`) em osso (`border-foreground`) para molduras fortes e em `border-border` para as suaves.
 - **Carimbo de mérito** (`ReviewCard`): o botão "Bem argumentada" é um bloco com a contagem em letra grande ("15 votos") e uma faixa de ação embaixo ("+ Votar" ou "✓ Votado"), para ficar claro que é um botão. Análise líder da ordenação por mérito = bloco vermelho cheio; voto do próprio visitante = bloco osso; demais = contorno. Estado por forma e peso, nunca só por cor. "Curtir" e "Spoiler" têm ícone, contorno de osso e contador separado por filete.
 - **Nota LogBuster** (`MovieDetail`): bloco osso com a média em display de 72px seguida de "/ 5" em display de 36px, e o rótulo e a contagem de avaliações ao lado, logo abaixo do título.
+- **Resumo da comunidade** (`ReviewSummary`): painel `surface` com borda de 2px em `border`, título em display de 24px, texto em serifa (`font-reading`, ~68ch) e o chip "Gerado por IA" no mesmo formato dos chips de destaque (borda de 1px, fundo `surface-raised`). Sem ocre: ocre é só de spoiler.
 - **Pôsteres:** proporção `aspect-[2/3]` com fallback "Sem poster" quando não há URL ou a imagem falha (`PosterImage`).
 - **Ícones:** SVG desenhado (`WarningIcon`, `StarIcon`, `ArrowLeftIcon`, `CloseIcon`, `PlusIcon`, `CheckIcon`, `ThumbUpIcon`), traço único. Sem emojis.
 - **Foco acessível:** contorno de 2px em `primary-text` em `:focus-visible`.

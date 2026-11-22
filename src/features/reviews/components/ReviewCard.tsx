@@ -5,6 +5,7 @@ import { CheckIcon, PlusIcon, ThumbUpIcon } from "@/shared/components/Icons";
 import { WarningIcon } from "@/shared/components/WarningIcon";
 import {
   REVIEW_HIGHLIGHT_LABELS,
+  SPOILER_VOTE_THRESHOLD,
   type Review,
   type ReviewInteraction,
 } from "../types";
@@ -24,7 +25,8 @@ export function ReviewCard({
   isInteracting = false,
   isLeading = false,
 }: ReviewCardProps) {
-  const isSpoilerProtected = review.isSpoiler || review.counts.spoiler >= 3;
+  const isSpoilerProtected =
+    review.isSpoiler || review.counts.spoiler >= SPOILER_VOTE_THRESHOLD;
   const [revealed, setRevealed] = useState(false);
 
   const formattedDate = new Date(review.createdAt).toLocaleDateString("pt-BR", {

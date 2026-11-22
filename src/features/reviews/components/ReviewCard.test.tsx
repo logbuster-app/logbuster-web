@@ -58,30 +58,48 @@ describe("ReviewCard", () => {
     expect(screen.queryByText("Esta avaliação contém spoiler")).not.toBeInTheDocument();
   });
 
-  it("oculta o texto quando counts.spoiler >= 3 mesmo se isSpoiler for false", async () => {
+  it("oculta o texto quando counts.spoiler >= 10 mesmo se isSpoiler for false (CR-02)", async () => {
     const user = userEvent.setup();
     const communitySpoilerReview: Review = {
       ...baseReview,
       isSpoiler: false,
       counts: {
         like: 1,
-        spoiler: 3,
+        spoiler: 10,
         wellArgued: 2,
       },
-      content: "Spoiler sinalizado pela comunidade com 3 votos.",
+      content: "Spoiler sinalizado pela comunidade com 10 votos.",
     };
 
     render(<ReviewCard review={communitySpoilerReview} />);
 
     expect(screen.getByText("Esta avaliação contém spoiler")).toBeInTheDocument();
     expect(
-      screen.queryByText("Spoiler sinalizado pela comunidade com 3 votos."),
+      screen.queryByText("Spoiler sinalizado pela comunidade com 10 votos."),
     ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /mostrar análise/i }));
     expect(
-      screen.getByText("Spoiler sinalizado pela comunidade com 3 votos."),
+      screen.getByText("Spoiler sinalizado pela comunidade com 10 votos."),
     ).toBeInTheDocument();
+  });
+
+  it("mantém o texto visível com 9 votos de spoiler (abaixo do limiar do CR-02)", () => {
+    const belowThresholdReview: Review = {
+      ...baseReview,
+      isSpoiler: false,
+      counts: {
+        like: 1,
+        spoiler: 9,
+        wellArgued: 2,
+      },
+      content: "Nove votos ainda não ocultam esta análise.",
+    };
+
+    render(<ReviewCard review={belowThresholdReview} />);
+
+    expect(screen.getByText("Nove votos ainda não ocultam esta análise.")).toBeInTheDocument();
+    expect(screen.queryByText("Esta avaliação contém spoiler")).not.toBeInTheDocument();
   });
 
   it("renderiza botões de interação com seus contadores e dispara onToggleInteraction ao clicar (RN-02)", async () => {

@@ -25,6 +25,11 @@ vi.mock("@/features/movies/server", () => ({
 }));
 
 vi.mock("@/features/reviews", () => ({
+  ReviewSummary: ({ movieId }: { movieId: string }) => (
+    <div data-testid="mock-review-summary" data-movie-id={movieId}>
+      Review Summary Mock: {movieId}
+    </div>
+  ),
   ReviewList: ({ movieId }: { movieId: string }) => (
     <div data-testid="mock-review-list" data-movie-id={movieId}>
       Review List Mock: {movieId}
@@ -37,7 +42,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("MoviePage (/movies/[id])", () => {
-  it("compõe MovieDetail e ReviewList passando o id da URL e pré-carrega o filme no servidor", async () => {
+  it("compõe MovieDetail, ReviewSummary e ReviewList passando o id da URL e pré-carrega o filme no servidor", async () => {
     mockGetMovieById.mockResolvedValueOnce({
       id: "tt0133093",
       title: "The Matrix",
@@ -60,6 +65,10 @@ describe("MoviePage (/movies/[id])", () => {
       screen.getByText("Movie Detail Mock: tt0133093"),
     ).toBeInTheDocument();
 
+    expect(screen.getByTestId("mock-review-summary")).toHaveAttribute(
+      "data-movie-id",
+      "tt0133093",
+    );
     expect(screen.getByTestId("mock-review-list")).toBeInTheDocument();
     expect(screen.getByTestId("mock-review-list")).toHaveAttribute(
       "data-movie-id",
