@@ -118,7 +118,7 @@ export async function createReviewMock(
   const response: ReviewCreationMockResponse = {
     id: crypto.randomUUID(),
     movie_id: input.movieId,
-    author_name: input.authorName,
+    author_name: "Visitante",
     rating: input.rating,
     content: input.content,
     is_spoiler: input.isSpoiler,

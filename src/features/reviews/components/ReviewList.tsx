@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/shared/contexts/SessionContext";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
 import { useMovieRating } from "../hooks/useMovieRating";
@@ -15,6 +17,8 @@ export type ReviewListProps = {
 };
 
 export function ReviewList({ movieId }: ReviewListProps) {
+  const router = useRouter();
+  const { viewer } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     reviews,
@@ -57,7 +61,13 @@ export function ReviewList({ movieId }: ReviewListProps) {
           />
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              if (!viewer) {
+                router.push(`/login?next=${encodeURIComponent(`/movies/${movieId}`)}`);
+                return;
+              }
+              setIsModalOpen(true);
+            }}
             className="inline-flex h-12 cursor-pointer items-center justify-center rounded-card bg-primary px-6 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             Avaliar filme

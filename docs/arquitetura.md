@@ -18,9 +18,9 @@ src/
     components/         UI genérica (SiteHeader, Spinner, StateMessage)
     config/             Variáveis de ambiente
     api/                Instâncias do cliente HTTP (internalApi, backendApi)
-    contexts/           Estado compartilhado entre features (MovieRatingContext)
+    contexts/           Estado compartilhado entre features (MovieRatingContext, SessionContext)
     hooks/              Hooks genéricos de UI (useModalBehavior)
-    lib/                Utilitários (apiClient, ApiError, visitor, format)
+    lib/                Utilitários (apiClient, ApiError, visitor, format, session)
   test/                 Setup dos testes
 docs/                   Esta documentação (Docsify)
 ```
@@ -46,6 +46,7 @@ componente  →  hook (estado)  →  service da feature (api/)  →  cliente em 
 1. **`shared/lib/apiClient.ts`** é o único lugar que chama `fetch`: URL base, query, headers, JSON, cancelamento e conversão de falhas em `ApiError` (`code` + `status`). Aceita headers dinâmicos e `onError` (interceptors).
 2. **`shared/api/clients.ts`** cria as instâncias: `internalApi` (rotas `/api/*` do Next) e `backendApi` (FastAPI, já com `X-Visitor-Id`).
 3. **Cada feature tem seus services em `api/`**: funções que conhecem só os endpoints da feature, chamam `internalApi`/`backendApi` e devolvem o **modelo de domínio** (via mapper). Nova consulta = nova função aqui.
+6. **Sessão da conta em `shared`**: `SessionProvider`/`useSession()` restauram o JWT e os dados mínimos de sessão; `backendApi` envia `Authorization: Bearer` apenas quando há sessão válida e limpa a sessão em `401` autenticado. Telas de login/cadastro vivem na feature `auth`.
 4. **Componentes e hooks nunca usam `fetch`** nem o `apiClient` direto: só os services.
 5. **Segredos só no backend.** As consultas de filmes usam `backendApi`; a chave OMDb é configurada apenas no LogBuster API. `features/movies/server.ts` expõe o mesmo serviço para Server Components.
 

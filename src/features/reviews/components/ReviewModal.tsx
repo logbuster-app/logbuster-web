@@ -1,6 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
+import { useSession } from "@/shared/contexts/SessionContext";
 import { CloseIcon } from "@/shared/components/CloseIcon";
 import { useModalBehavior } from "@/shared/hooks/useModalBehavior";
 import { useCreateReview } from "../hooks/useCreateReview";
@@ -8,24 +10,6 @@ import type { Review, ReviewHighlight } from "../types";
 import { REVIEW_LIMITS, validateReview } from "../validation";
 import { HighlightPicker } from "./HighlightPicker";
 import { StarRatingInput } from "./StarRatingInput";
-
-const AUTHOR_NAME_STORAGE_KEY = "logbuster:review_author_name";
-
-function readSavedAuthorName(): string {
-  try {
-    return window.localStorage.getItem(AUTHOR_NAME_STORAGE_KEY) ?? "";
-  } catch {
-    return "";
-  }
-}
-
-function saveAuthorName(name: string) {
-  try {
-    window.localStorage.setItem(AUTHOR_NAME_STORAGE_KEY, name);
-  } catch {
-    // A publicação não depende da persistência local do nome.
-  }
-}
 
 export type ReviewModalProps = {
   movieId: string;
@@ -39,18 +23,24 @@ export type ReviewModalProps = {
  * perder o texto digitado. Em falha, mantém todos os valores (RN-05).
  */
 export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
+  const router = useRouter();
+  const { viewer } = useSession();
   const dialogRef = useRef<HTMLElement>(null);
-  // O modal só é montado no navegador (após o clique), então ler o storage aqui é seguro.
-  const [authorName, setAuthorName] = useState(readSavedAuthorName);
   const [rating, setRating] = useState<number | null>(null);
   const [highlights, setHighlights] = useState<ReviewHighlight[]>([]);
   const [content, setContent] = useState("");
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
-  const { submit, submitting, error: submitError, clearError } = useCreateReview();
+  const {
+    submit,
+    submitting,
+    error: submitError,
+    unauthorized,
+    clearError,
+  } = useCreateReview();
 
-  // Há algo a perder? O nome vem preenchido do último uso, então não conta.
+  // O texto e as seleções são preservados em falhas no modal.
   const hasUnsavedWork =
     rating !== null || content.trim().length > 0 || highlights.length > 0 || isSpoiler;
 
@@ -75,7 +65,7 @@ export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     clearError();
-    const result = validateReview({ movieId, rating, authorName, content, isSpoiler, highlights });
+    const result = validateReview({ movieId, rating, content, isSpoiler, highlights });
     if (!result.ok) {
       setValidationError(result.error);
       return;
@@ -84,7 +74,6 @@ export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
 
     const review = await submit(result.input);
     if (!review) return;
-    saveAuthorName(result.input.authorName);
     onCreated(review);
   }
 
@@ -139,10 +128,27 @@ export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
             </div>
           ) : null}
 
-          {error ? (
+          {unauthorized ? (
+            <div role="alert" className="space-y-3 rounded-card border-2 border-danger bg-background p-3 text-sm text-danger">
+              <p>{error ?? "Sua sessão expirou. Entre novamente para publicar."}</p>
+              <button
+                type="button"
+                onClick={() => router.push(`/login?next=${encodeURIComponent(`/movies/${movieId}`)}`)}
+                className="min-h-11 cursor-pointer rounded-card bg-primary px-5 text-sm font-bold uppercase tracking-wide text-primary-foreground hover:bg-primary-hover"
+              >
+                Entrar de novo
+              </button>
+            </div>
+          ) : error ? (
             <div role="alert" className="rounded-card border-2 border-danger bg-background p-3 text-sm text-danger">
               {error}
             </div>
+          ) : null}
+
+          {viewer ? (
+            <p className="text-sm text-muted">
+              Publicando como <span className="font-bold text-foreground">{viewer.displayName}</span>
+            </p>
           ) : null}
 
           <div className="space-y-2">
@@ -153,22 +159,6 @@ export function ReviewModal({ movieId, onClose, onCreated }: ReviewModalProps) {
           </div>
 
           <HighlightPicker value={highlights} onChange={setHighlights} />
-
-          <div className="space-y-1.5">
-            <label htmlFor="review-author-name" className="block text-xs font-bold uppercase tracking-wide text-foreground">
-              Nome / apelido <span className="text-danger">*</span>
-            </label>
-            <input
-              id="review-author-name"
-              value={authorName}
-              onChange={(event) => setAuthorName(event.target.value)}
-              autoFocus
-              maxLength={REVIEW_LIMITS.authorName.max}
-              autoComplete="nickname"
-              className="h-11 w-full rounded-card border-2 border-border bg-background px-3 text-sm text-foreground placeholder:text-subtle focus-visible:border-foreground"
-            />
-            <p className="text-xs text-muted">De 2 a 50 caracteres.</p>
-          </div>
 
           <div className="space-y-1.5">
             <label htmlFor="review-content" className="block text-xs font-bold uppercase tracking-wide text-foreground">

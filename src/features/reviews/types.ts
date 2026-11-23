@@ -36,7 +36,6 @@ export type Review = {
 
 export type CreateReviewInput = {
   movieId: string;
-  authorName: string;
   rating: number;
   content: string;
   isSpoiler: boolean;

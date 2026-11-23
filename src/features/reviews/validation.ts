@@ -4,7 +4,6 @@ import type { CreateReviewInput, ReviewHighlight } from "./types";
 export const REVIEW_LIMITS = {
   minRating: 0.5,
   maxRating: 5,
-  authorName: { min: 2, max: 50 },
   content: { min: 10, max: 2000 },
   maxHighlights: 2,
 } as const;
@@ -12,7 +11,6 @@ export const REVIEW_LIMITS = {
 export type ReviewFormValues = {
   movieId: string;
   rating: number | null;
-  authorName: string;
   content: string;
   isSpoiler: boolean;
   highlights: ReviewHighlight[];
@@ -25,9 +23,8 @@ export type ReviewValidationResult =
 /** Valida o formulário e devolve o payload normalizado (com `trim`) pronto para o service. */
 export function validateReview(values: ReviewFormValues): ReviewValidationResult {
   const { rating } = values;
-  const authorName = values.authorName.trim();
   const content = values.content.trim();
-  const { authorName: nameLimit, content: contentLimit } = REVIEW_LIMITS;
+  const { content: contentLimit } = REVIEW_LIMITS;
 
   if (
     rating === null ||
@@ -36,9 +33,6 @@ export function validateReview(values: ReviewFormValues): ReviewValidationResult
     (rating * 2) % 1 !== 0
   ) {
     return { ok: false, error: "Selecione uma nota entre 0,5 e 5,0 estrelas." };
-  }
-  if (authorName.length < nameLimit.min || authorName.length > nameLimit.max) {
-    return { ok: false, error: "O nome deve ter entre 2 e 50 caracteres." };
   }
   if (content.length < contentLimit.min || content.length > contentLimit.max) {
     return { ok: false, error: "A análise deve ter entre 10 e 2000 caracteres." };
@@ -52,7 +46,6 @@ export function validateReview(values: ReviewFormValues): ReviewValidationResult
     input: {
       movieId: values.movieId,
       rating,
-      authorName,
       content,
       isSpoiler: values.isSpoiler,
       highlights: values.highlights,

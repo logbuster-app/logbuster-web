@@ -75,7 +75,6 @@ export async function createReview(input: CreateReviewInput): Promise<Review> {
     method: "POST",
     body: {
       movie_id: input.movieId,
-      author_name: input.authorName,
       rating: input.rating,
       content: input.content,
       is_spoiler: input.isSpoiler,

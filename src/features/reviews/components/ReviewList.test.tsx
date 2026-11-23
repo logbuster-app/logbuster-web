@@ -7,9 +7,23 @@ import {
 } from "@/shared/contexts/MovieRatingContext";
 import * as reviewsApi from "../api/reviews";
 import type { Review, ReviewListPage } from "../types";
+import { SessionProvider } from "@/shared/contexts/SessionContext";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 import { ReviewList } from "./ReviewList";
 
 describe("ReviewList", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("logbuster:session", JSON.stringify({
+      accessToken: "token-test",
+      expiresAt: Date.now() + 3600000,
+      viewer: { userId: "user-1", displayName: "Thyago" },
+    }));
+  });
+
   beforeEach(() => {
     vi.spyOn(reviewsApi, "fetchMovieRating").mockResolvedValue({
       movieId: "tt0133093",
@@ -136,17 +150,18 @@ describe("ReviewList", () => {
     }
 
     render(
-      <MovieRatingProvider>
-        <RatingProbe />
-        <ReviewList movieId="tt0133093" />
-      </MovieRatingProvider>,
+      <SessionProvider>
+        <MovieRatingProvider>
+          <RatingProbe />
+          <ReviewList movieId="tt0133093" />
+        </MovieRatingProvider>
+      </SessionProvider>,
     );
 
     await waitFor(() => expect(screen.getByTestId("rating-probe")).toHaveTextContent("4.5|1"));
 
     await user.click(await screen.findByRole("button", { name: "Avaliar filme" }));
     await user.click(screen.getByRole("button", { name: "5,0 de 5 estrelas" }));
-    await user.type(screen.getByLabelText(/nome \/ apelido/i), "Ana");
     await user.type(
       screen.getByLabelText(/sua análise/i),
       "Uma análise nova e suficientemente longa.",

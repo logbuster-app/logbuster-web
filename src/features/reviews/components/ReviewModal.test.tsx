@@ -1,6 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionProvider } from "@/shared/contexts/SessionContext";
+import { ApiError } from "@/shared/lib/errors";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 const createReviewMock = vi.hoisted(() => vi.fn());
 vi.mock("../api/reviews", () => ({ createReview: createReviewMock }));
@@ -24,15 +30,27 @@ const createdReview: Review = {
 describe("ReviewModal", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.localStorage.setItem("logbuster:session", JSON.stringify({
+      accessToken: "token-test",
+      expiresAt: Date.now() + 3600000,
+      viewer: { userId: "user-1", displayName: "Thyago" },
+    }));
     vi.clearAllMocks();
   });
+
+  function renderModal(onClose = vi.fn(), onCreated = vi.fn()) {
+    return render(
+      <SessionProvider>
+        <ReviewModal movieId="tt0133093" onClose={onClose} onCreated={onCreated} />
+      </SessionProvider>,
+    );
+  }
 
   async function fillValidForm() {
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: "4,5 de 5 estrelas" }));
     await user.click(screen.getByRole("button", { name: "Direção" }));
     await user.click(screen.getByRole("button", { name: "Efeitos Especiais" }));
-    await user.type(screen.getByLabelText(/nome \/ apelido/i), "Thyago");
     await user.type(
       screen.getByLabelText(/sua análise/i),
       "Uma análise suficientemente longa para publicação.",
@@ -43,7 +61,7 @@ describe("ReviewModal", () => {
 
   it("valida campos obrigatórios e não tenta publicar uma nota vazia", async () => {
     const user = userEvent.setup();
-    render(<ReviewModal movieId="tt0133093" onClose={vi.fn()} onCreated={vi.fn()} />);
+    renderModal();
 
     await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
 
@@ -53,14 +71,13 @@ describe("ReviewModal", () => {
 
   it("mantém o conteúdo e as seleções após falha do adapter", async () => {
     createReviewMock.mockRejectedValueOnce(new Error("Falha simulada"));
-    render(<ReviewModal movieId="tt0133093" onClose={vi.fn()} onCreated={vi.fn()} />);
+    renderModal();
     const user = await fillValidForm();
 
     await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Falha simulada");
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByLabelText(/nome \/ apelido/i)).toHaveValue("Thyago");
     expect(screen.getByLabelText(/sua análise/i)).toHaveValue(
       "Uma análise suficientemente longa para publicação.",
     );
@@ -71,10 +88,10 @@ describe("ReviewModal", () => {
     expect(screen.getByRole("checkbox", { name: /contém spoilers/i })).toBeChecked();
   });
 
-  it("publica os campos normalizados, persiste o nome e notifica sucesso", async () => {
+  it("publica os campos normalizados e notifica sucesso", async () => {
     createReviewMock.mockResolvedValueOnce(createdReview);
     const onCreated = vi.fn();
-    render(<ReviewModal movieId="tt0133093" onClose={vi.fn()} onCreated={onCreated} />);
+    renderModal(vi.fn(), onCreated);
     const user = await fillValidForm();
 
     await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
@@ -82,7 +99,6 @@ describe("ReviewModal", () => {
     await waitFor(() => {
       expect(createReviewMock).toHaveBeenCalledWith({
         movieId: "tt0133093",
-        authorName: "Thyago",
         rating: 4.5,
         content: "Uma análise suficientemente longa para publicação.",
         isSpoiler: true,
@@ -90,13 +106,12 @@ describe("ReviewModal", () => {
       });
       expect(onCreated).toHaveBeenCalledWith(createdReview);
     });
-    expect(window.localStorage.getItem("logbuster:review_author_name")).toBe("Thyago");
   });
 
   it("pede confirmação antes de descartar um texto digitado", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+    renderModal(onClose);
 
     await user.type(screen.getByLabelText(/sua análise/i), "Um argumento que não pode se perder.");
     await user.keyboard("{Escape}");
@@ -117,7 +132,7 @@ describe("ReviewModal", () => {
   it("fecha com Escape e com Cancelar quando não está enviando", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+    renderModal(onClose);
 
     await user.keyboard("{Escape}");
     await user.click(screen.getByRole("button", { name: "Cancelar" }));
@@ -128,7 +143,7 @@ describe("ReviewModal", () => {
   it("não fecha ao clicar fora, para não perder o texto digitado", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+    renderModal(onClose);
 
     await user.type(screen.getByLabelText(/sua análise/i), "Texto em andamento");
     await user.click(screen.getByRole("dialog").parentElement as HTMLElement);
@@ -137,17 +152,23 @@ describe("ReviewModal", () => {
     expect(screen.getByLabelText(/sua análise/i)).toHaveValue("Texto em andamento");
   });
 
-  it("preenche o nome salvo da última publicação", () => {
-    window.localStorage.setItem("logbuster:review_author_name", "Thyago");
-    render(<ReviewModal movieId="tt0133093" onClose={vi.fn()} onCreated={vi.fn()} />);
+  it("exibe Entrar de novo e preserva o texto quando a publicação retorna 401", async () => {
+    createReviewMock.mockRejectedValueOnce(new ApiError("Sessão expirada", "upstream", 401));
+    renderModal();
+    const user = await fillValidForm();
 
-    expect(screen.getByLabelText(/nome \/ apelido/i)).toHaveValue("Thyago");
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(await screen.findByRole("button", { name: "Entrar de novo" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/sua análise/i)).toHaveValue(
+      "Uma análise suficientemente longa para publicação.",
+    );
   });
 
   it("fecha com Escape e mantém o modal aberto enquanto envia", async () => {
     const onClose = vi.fn();
     createReviewMock.mockReturnValueOnce(new Promise(() => {}));
-    render(<ReviewModal movieId="tt0133093" onClose={onClose} onCreated={vi.fn()} />);
+    renderModal(onClose);
     const formUser = await fillValidForm();
 
     await formUser.click(screen.getByRole("button", { name: "Publicar avaliação" }));

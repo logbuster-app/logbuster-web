@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Source_Serif_4 } from "next/font/google";
 import { SiteHeader } from "@/shared/components/SiteHeader";
+import { SessionProvider } from "@/shared/contexts/SessionContext";
 import "./globals.css";
 
 // Letra condensada pesada (eixo de largura) para títulos; Archivo normal para a interface.
@@ -32,8 +33,10 @@ export default function RootLayout({
       className={`${archivo.variable} ${sourceSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">{children}</main>
+        <SessionProvider>
+          <SiteHeader />
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">{children}</main>
+        </SessionProvider>
       </body>
     </html>
   );

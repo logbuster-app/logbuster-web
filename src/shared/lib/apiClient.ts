@@ -13,6 +13,8 @@ export type RequestOptions = {
   networkMessage?: string;
   /** Mensagem exibida quando o servidor responde com erro. Sem ela, usa `error`/`detail` do corpo. */
   errorMessage?: string;
+  /** Quando true, remove Authorization também quando o cliente tiver headers padrão autenticados. */
+  skipAuth?: boolean;
 };
 
 export type ApiClientConfig = {
@@ -21,7 +23,7 @@ export type ApiClientConfig = {
   /** Headers enviados em toda requisição. Pode ser função, avaliada a cada chamada (ex.: id do visitante). */
   headers?: Record<string, string> | (() => Record<string, string>);
   /** Chamado antes de lançar qualquer `ApiError` (log, tratar 401/429 num só lugar). */
-  onError?: (error: ApiError) => void;
+  onError?: (error: ApiError, sentAuthorization: boolean) => void;
 };
 
 function buildUrl(baseUrl: string, path: string, query?: RequestOptions["query"]): string {
@@ -64,20 +66,33 @@ async function readErrorMessage(res: Response): Promise<string | null> {
  * conversão de falhas em `ApiError` (`network` | `upstream`, com `status`).
  */
 export function createApiClient({ baseUrl = "", headers: defaults = {}, onError }: ApiClientConfig = {}) {
-  function fail(error: ApiError): never {
-    onError?.(error);
+  function fail(error: ApiError, sentAuthorization = false): never {
+    onError?.(error, sentAuthorization);
     throw error;
   }
 
   async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { method = "GET", query, headers, body, signal, networkMessage, errorMessage } = options;
+    const {
+      method = "GET",
+      query,
+      headers,
+      body,
+      signal,
+      networkMessage,
+      errorMessage,
+      skipAuth = false,
+    } = options;
 
+    const defaultHeaders =
+      typeof defaults === "function" ? defaults() : defaults;
     const finalHeaders: Record<string, string> = {
       Accept: "application/json",
-      ...(typeof defaults === "function" ? defaults() : defaults),
+      ...(skipAuth ? {} : defaultHeaders),
       ...headers,
     };
     if (body !== undefined) finalHeaders["Content-Type"] = "application/json";
+
+    const sentAuthorization = typeof finalHeaders.Authorization === "string";
 
     let res: Response;
     try {
@@ -89,13 +104,13 @@ export function createApiClient({ baseUrl = "", headers: defaults = {}, onError 
       });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") throw err;
-      return fail(new ApiError(networkMessage ?? "Não foi possível conectar ao servidor.", "network"));
+      return fail(new ApiError(networkMessage ?? "Não foi possível conectar ao servidor.", "network"), sentAuthorization);
     }
 
     if (!res.ok) {
       const message =
         errorMessage ?? (await readErrorMessage(res)) ?? "O servidor retornou um erro inesperado.";
-      return fail(new ApiError(message, "upstream", res.status));
+      return fail(new ApiError(message, "upstream", res.status), sentAuthorization);
     }
 
     return (await res.json()) as T;

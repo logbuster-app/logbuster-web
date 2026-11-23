@@ -30,7 +30,6 @@ describe("reviews.mock", () => {
   it("cria avaliação no contrato esperado e a disponibiliza na listagem mock", async () => {
     const input = {
       movieId,
-      authorName: "Thyago",
       rating: 4.5,
       content: "Direção precisa e efeitos visuais inovadores.",
       isSpoiler: true,
@@ -45,7 +44,7 @@ describe("reviews.mock", () => {
 
     expect(created).toMatchObject({
       movie_id: movieId,
-      author_name: input.authorName,
+      author_name: "Visitante",
       rating: input.rating,
       content: input.content,
       is_spoiler: true,
@@ -58,7 +57,7 @@ describe("reviews.mock", () => {
     expect(page.items.find((item) => item.id === created.id)).toMatchObject({
       id: created.id,
       movieId,
-      authorName: input.authorName,
+      authorName: "Visitante",
       rating: input.rating,
       isSpoiler: true,
     });

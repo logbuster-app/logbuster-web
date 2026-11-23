@@ -169,7 +169,6 @@ describe("createReview (mock-first)", () => {
   it("delegates creation to reviews.mock.ts without making a network request", async () => {
     const input = {
       movieId: "tt0133093",
-      authorName: "Thyago",
       rating: 4.5,
       content: "Análise válida com pelo menos dez caracteres.",
       isSpoiler: false,
@@ -181,7 +180,7 @@ describe("createReview (mock-first)", () => {
     const spy = vi.spyOn(reviewsMockModule, "createReviewMock").mockResolvedValueOnce({
       id: "review-mock",
       movie_id: input.movieId,
-      author_name: input.authorName,
+      author_name: "Visitante",
       rating: input.rating,
       content: input.content,
       is_spoiler: input.isSpoiler,
@@ -196,7 +195,7 @@ describe("createReview (mock-first)", () => {
     await expect(createReview(input)).resolves.toMatchObject({
       id: "review-mock",
       movieId: input.movieId,
-      authorName: input.authorName,
+      authorName: "Visitante",
       createdAt: "2026-11-09T12:00:00Z",
     });
     expect(spy).toHaveBeenCalledWith(input);
@@ -207,7 +206,6 @@ describe("createReview (mock-first)", () => {
     envMock.useApiMocks = false;
     const input = {
       movieId: "tt0133093",
-      authorName: "Thyago",
       rating: 4.5,
       content: "Análise válida com pelo menos dez caracteres.",
       isSpoiler: false,
@@ -217,7 +215,7 @@ describe("createReview (mock-first)", () => {
       {
         id: "review-1",
         movie_id: input.movieId,
-        author_name: input.authorName,
+        author_name: "Visitante",
         rating: input.rating,
         content: input.content,
         is_spoiler: false,
@@ -236,13 +234,12 @@ describe("createReview (mock-first)", () => {
     expect(initArg.method).toBe("POST");
     expect(JSON.parse(initArg.body)).toEqual({
       movie_id: input.movieId,
-      author_name: input.authorName,
       rating: input.rating,
       content: input.content,
       is_spoiler: false,
       highlights: [],
     });
-    expect(review).toMatchObject({ movieId: input.movieId, authorName: input.authorName });
+    expect(review).toMatchObject({ movieId: input.movieId, authorName: "Visitante" });
   });
 });
 
