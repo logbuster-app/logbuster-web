@@ -11,5 +11,6 @@
   - [Contas e sessão](features/contas-e-sessao.md)
   - [Cadastro de avaliação](features/cadastro-de-avaliacao.md)
   - [Resumo da comunidade com IA](features/resumo-da-comunidade.md)
+  - [Destaques da comunidade](features/destaques-da-comunidade.md)
 - [Guia para continuar o front](continuando.md)
 - [Fluxo de entrega (PR)](contribuindo.md)

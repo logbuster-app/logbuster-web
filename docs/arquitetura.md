@@ -20,7 +20,7 @@ src/
     api/                Instâncias do cliente HTTP (internalApi, backendApi)
     contexts/           Estado compartilhado entre features (MovieRatingContext, SessionContext)
     hooks/              Hooks genéricos de UI (useModalBehavior)
-    lib/                Utilitários (apiClient, ApiError, visitor, format, session)
+    lib/                Utilitários (apiClient, ApiError, visitor, format, session, highlights)
   test/                 Setup dos testes
 docs/                   Esta documentação (Docsify)
 ```
@@ -63,7 +63,7 @@ Componentes que usam estado, efeitos ou `useSearchParams` começam com `"use cli
 
 ## Estado da busca na URL
 
-A consulta fica em `/?q=termo`. Isso deixa a busca compartilhável e preserva o resultado ao recarregar ou voltar.
+A consulta fica em `/?q=termo`. Isso deixa a busca compartilhável e preserva o resultado ao recarregar ou voltar. Sem busca, o aspecto dos Destaques da comunidade fica em `/?destaque=soundtrack` (veja [Destaques da comunidade](features/destaques-da-comunidade.md)).
 
 
 Para a regra de onde cada componente vai e a divisão das tasks, veja [Organização e divisão de tasks](organizacao.md).

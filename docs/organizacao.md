@@ -53,6 +53,7 @@ Regras de dependência:
 | Task 2 (nota do nosso backend) | Elton | `reviews` | `features/reviews/api/` (cliente da nota média) |
 | Task 3: visualização de avaliações | Elton | `reviews` | `features/reviews/components/ReviewList.tsx`, `ReviewCard.tsx`, interações em `hooks/` |
 | Task 4: cadastro de avaliações | Thyago | `reviews` | `features/reviews/components/ReviewModal.tsx`, POST em `features/reviews/api/` |
+| FRONT-11: destaques da comunidade na home | Marcos | `movies` | `features/movies/components/highlights/`, `hooks/useHighlightedMovies.ts`, `api/highlightsClient.ts`; nomes dos destaques em `shared/lib/highlights.ts` |
 | Front 2: resumo da comunidade (IA) | Marcos | `reviews` | `ReviewSummary.tsx`, `useReviewSummary.ts`, `api/reviewAi.ts` |
 
 ## Como começar sua task

@@ -8,6 +8,15 @@ export type MovieSummary = {
   posterUrl: string | null;
 };
 
+/** Filme do ranking "Destaques da comunidade" (GET /api/v1/highlights/{highlight}/movies). */
+export type HighlightedMovie = MovieSummary & {
+  /** Média da comunidade; null se o backend não enviar. */
+  ratingAvg: number | null;
+  ratingCount: number;
+  /** Avaliações que incluem o destaque consultado. */
+  highlightCount: number;
+};
+
 export type MovieSearchPage = {
   movies: MovieSummary[];
   total: number;

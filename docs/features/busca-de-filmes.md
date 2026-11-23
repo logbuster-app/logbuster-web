@@ -6,7 +6,7 @@
 - Consulta `GET /api/v1/movies` ao backend, responsável pela integração com a OMDb.
 - Grid de resultados com poster, título e ano.
 - Paginação por botão **Carregar mais** (10 por página).
-- Estados: inicial, carregando, vazio, erro e erro ao carregar mais.
+- Estados: carregando, vazio, erro e erro ao carregar mais. Sem busca digitada, a tela mostra os [Destaques da comunidade](destaques-da-comunidade.md) no lugar do antigo estado inicial.
 - A consulta fica na URL (`/?q=termo`).
 
 ## Componentes
@@ -17,7 +17,7 @@
 | `components/search/SearchBar.tsx` | Formulário de busca (acessível, ignora texto vazio) |
 | `components/search/MovieGrid.tsx` | Grade responsiva de filmes |
 | `components/search/MovieCard.tsx` | Card de um filme; **reutilizável** em outras telas |
-| `hooks/useMovieSearch.ts` | Busca, paginação e status (`idle`, `loading`, `success`, `error`) |
+| `hooks/useMovieSearch.ts` | Busca, paginação e status (`idle`, `loading`, `success`, `error`); `idle` mostra a seção de destaques |
 
 ## Pontos de extensão
 
