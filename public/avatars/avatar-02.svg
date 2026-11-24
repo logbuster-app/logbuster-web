@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar 2 — Película">
+  <rect width="128" height="128" fill="#E8452C" />
+  <rect x="22" y="14" width="84" height="100" fill="#14100E" />
+  <rect x="28" y="22" width="10" height="12" fill="#EDE3CE" />
+  <rect x="28" y="44" width="10" height="12" fill="#EDE3CE" />
+  <rect x="28" y="66" width="10" height="12" fill="#EDE3CE" />
+  <rect x="28" y="88" width="10" height="12" fill="#EDE3CE" />
+  <rect x="90" y="22" width="10" height="12" fill="#EDE3CE" />
+  <rect x="90" y="44" width="10" height="12" fill="#EDE3CE" />
+  <rect x="90" y="66" width="10" height="12" fill="#EDE3CE" />
+  <rect x="90" y="88" width="10" height="12" fill="#EDE3CE" />
+  <rect x="44" y="24" width="40" height="34" fill="#EDE3CE" />
+  <rect x="44" y="66" width="40" height="34" fill="#E8452C" />
+</svg>

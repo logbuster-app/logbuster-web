@@ -14,3 +14,5 @@ export type {
   MovieDetail as MovieDetailData,
 } from "./types";
 export type { MovieDetailProps } from "./components/detail";
+export { MovieTitleLink } from "./components/MovieTitleLink";
+export type { MovieTitleLinkProps } from "./components/MovieTitleLink";

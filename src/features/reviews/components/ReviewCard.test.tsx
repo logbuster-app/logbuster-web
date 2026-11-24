@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -128,5 +129,18 @@ describe("ReviewCard", () => {
 
     await user.click(spoilerBtn);
     expect(handleToggle).toHaveBeenCalledWith("review-1", "spoiler");
+  });
+
+  it("exibe o movieSlot acima do cabeçalho mesmo quando o texto tem spoiler oculto", () => {
+    render(
+      <ReviewCard
+        review={{ ...baseReview, isSpoiler: true }}
+        movieSlot={<Link href="/movies/tt0133093">The Matrix</Link>}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "The Matrix" })).toBeInTheDocument();
+    expect(screen.getByText(/4,5/)).toBeInTheDocument();
+    expect(screen.getByText("Esta avaliação contém spoiler")).toBeInTheDocument();
   });
 });

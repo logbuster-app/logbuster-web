@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar 8 — Tela panorâmica">
+  <rect width="128" height="128" fill="#14100E" />
+  <rect x="12" y="28" width="104" height="72" fill="#EDE3CE" />
+  <rect x="18" y="34" width="92" height="60" fill="#1D1814" />
+  <polygon points="64,42 82,68 46,68" fill="#E8452C" />
+  <polygon points="18,94 52,62 82,94" fill="#EDE3CE" />
+  <polygon points="58,94 86,68 110,94" fill="#B9AD97" />
+</svg>

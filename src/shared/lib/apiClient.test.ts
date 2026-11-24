@@ -120,4 +120,52 @@ describe("createApiClient", () => {
     expect(onError.mock.calls[0][0]).toMatchObject({ status: 429 });
     expect(onError.mock.calls[1][0]).toMatchObject({ code: "network" });
   });
+
+  it("envia File/Blob diretamente sem JSON.stringify e preserva o Content-Type", async () => {
+    const fetchMock = mockFetch({ url: "/api/v1/users/1/images/avatar/v1" });
+    const api = createApiClient({ baseUrl: "http://api.test" });
+    const file = new File(["conteudo-binario"], "foto.webp", { type: "image/webp" });
+
+    await api.request("/v1/users/me/images/avatar", {
+      method: "PUT",
+      body: file,
+      headers: { "Content-Type": "image/webp" },
+    });
+
+    const init = fetchMock.mock.calls[0][1];
+    expect(init.method).toBe("PUT");
+    expect(init.body).toBe(file);
+    expect(init.headers["Content-Type"]).toBe("image/webp");
+  });
+
+  it("infere Content-Type a partir do Blob quando o header não é informado", async () => {
+    const fetchMock = mockFetch({ url: "/api/v1/users/1/images/background/v1" });
+    const blob = new Blob(["bytes"], { type: "image/png" });
+
+    await createApiClient().request("/v1/users/me/images/background", {
+      method: "PUT",
+      body: blob,
+    });
+
+    const init = fetchMock.mock.calls[0][1];
+    expect(init.body).toBe(blob);
+    expect(init.headers["Content-Type"]).toBe("image/png");
+  });
+
+  it("retorna undefined sem chamar res.json() em respostas 204 ou de corpo vazio", async () => {
+    const jsonSpy = vi.fn().mockRejectedValue(new SyntaxError("Unexpected end of JSON input"));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, status: 204, json: jsonSpy })
+      .mockResolvedValueOnce(new Response("", { status: 200 }))
+      .mockResolvedValueOnce(new Response('{"ok":true}', { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const api = createApiClient();
+    await expect(api.request<void>("/v1/users/me/images/avatar", { method: "DELETE" })).resolves.toBeUndefined();
+    expect(jsonSpy).not.toHaveBeenCalled();
+
+    await expect(api.request<void>("/v1/empty")).resolves.toBeUndefined();
+    await expect(api.request<{ ok: boolean }>("/v1/json")).resolves.toEqual({ ok: true });
+  });
 });

@@ -6,7 +6,7 @@ export type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   query?: Record<string, QueryValue>;
   headers?: Record<string, string>;
-  /** Objeto serializado como JSON (adiciona `Content-Type: application/json`). */
+  /** Objeto serializado como JSON (`Content-Type: application/json`) ou arquivo/binário (`Blob`/`File`) enviado direto. */
   body?: unknown;
   signal?: AbortSignal;
   /** Mensagem exibida em falhas de rede. */
@@ -61,8 +61,16 @@ async function readErrorMessage(res: Response): Promise<string | null> {
   return null;
 }
 
+function isBinaryBody(body: unknown): body is Blob | ArrayBuffer | ArrayBufferView {
+  return (
+    body instanceof Blob ||
+    body instanceof ArrayBuffer ||
+    ArrayBuffer.isView(body)
+  );
+}
+
 /**
- * Cliente HTTP único do front: base URL, headers padrão, JSON, cancelamento e
+ * Cliente HTTP único do front: base URL, headers padrão, JSON/binário, cancelamento e
  * conversão de falhas em `ApiError` (`network` | `upstream`, com `status`).
  */
 export function createApiClient({ baseUrl = "", headers: defaults = {}, onError }: ApiClientConfig = {}) {
@@ -90,7 +98,19 @@ export function createApiClient({ baseUrl = "", headers: defaults = {}, onError 
       ...(skipAuth ? {} : defaultHeaders),
       ...headers,
     };
-    if (body !== undefined) finalHeaders["Content-Type"] = "application/json";
+
+    let requestBody: BodyInit | undefined;
+    if (body !== undefined) {
+      if (isBinaryBody(body)) {
+        if (!finalHeaders["Content-Type"] && body instanceof Blob && body.type) {
+          finalHeaders["Content-Type"] = body.type;
+        }
+        requestBody = body as BodyInit;
+      } else {
+        finalHeaders["Content-Type"] = "application/json";
+        requestBody = JSON.stringify(body);
+      }
+    }
 
     const sentAuthorization = typeof finalHeaders.Authorization === "string";
 
@@ -99,7 +119,7 @@ export function createApiClient({ baseUrl = "", headers: defaults = {}, onError 
       res = await fetch(buildUrl(baseUrl, path, query), {
         method,
         headers: finalHeaders,
-        body: body === undefined ? undefined : JSON.stringify(body),
+        body: requestBody,
         signal,
       });
     } catch (err) {
@@ -111,6 +131,16 @@ export function createApiClient({ baseUrl = "", headers: defaults = {}, onError 
       const message =
         errorMessage ?? (await readErrorMessage(res)) ?? "O servidor retornou um erro inesperado.";
       return fail(new ApiError(message, "upstream", res.status), sentAuthorization);
+    }
+
+    if (res.status === 204 || res.status === 205) {
+      return undefined as T;
+    }
+
+    if (typeof res.text === "function") {
+      const raw = await res.text();
+      if (!raw.trim()) return undefined as T;
+      return JSON.parse(raw) as T;
     }
 
     return (await res.json()) as T;

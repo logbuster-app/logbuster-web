@@ -17,6 +17,8 @@ export type ReviewCardProps = {
   isInteracting?: boolean;
   /** Análise líder da ordenação por mérito: o carimbo vira bloco vermelho cheio. */
   isLeading?: boolean;
+  /** Conteúdo opcional para identificar o filme avaliado (ex.: no histórico de perfil). */
+  movieSlot?: React.ReactNode;
 };
 
 export function ReviewCard({
@@ -24,6 +26,7 @@ export function ReviewCard({
   onToggleInteraction,
   isInteracting = false,
   isLeading = false,
+  movieSlot,
 }: ReviewCardProps) {
   const isSpoilerProtected =
     review.isSpoiler || review.counts.spoiler >= SPOILER_VOTE_THRESHOLD;
@@ -94,6 +97,8 @@ export function ReviewCard({
       </button>
 
       <div className="min-w-0 space-y-4">
+        {movieSlot ? <div>{movieSlot}</div> : null}
+
         {/* Cabeçalho da avaliação: autor, data e estrelas */}
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="flex flex-wrap items-baseline gap-x-3">

@@ -9,6 +9,7 @@
   - [Ficha do filme](features/detalhe-de-filme.md)
   - [Avaliações e interações](features/avaliacoes-e-interacoes.md)
   - [Contas e sessão](features/contas-e-sessao.md)
+  - [Perfil público e arquétipo](features/perfil.md)
   - [Cadastro de avaliação](features/cadastro-de-avaliacao.md)
   - [Resumo da comunidade com IA](features/resumo-da-comunidade.md)
 - [Guia para continuar o front](continuando.md)

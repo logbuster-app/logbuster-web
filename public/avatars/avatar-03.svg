@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar 3 — Projetor">
+  <rect width="128" height="128" fill="#1D1814" />
+  <polygon points="76,58 120,30 120,98 76,70" fill="#EDE3CE" />
+  <rect x="16" y="48" width="54" height="40" fill="#E8452C" />
+  <rect x="24" y="56" width="22" height="24" fill="#14100E" />
+  <rect x="18" y="22" width="22" height="22" fill="#EDE3CE" />
+  <rect x="46" y="22" width="22" height="22" fill="#EDE3CE" />
+  <rect x="70" y="54" width="10" height="20" fill="#14100E" />
+  <polygon points="32,88 46,88 26,112 16,112" fill="#EDE3CE" />
+  <polygon points="48,88 62,88 72,112 62,112" fill="#EDE3CE" />
+</svg>

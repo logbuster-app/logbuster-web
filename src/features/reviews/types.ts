@@ -78,3 +78,10 @@ export type ReviewSummary =
   | { status: "ready"; text: string; generatedAt: string }
   | { status: "insufficient_reviews" }
   | { status: "unavailable" };
+
+export type UserReviewListPage = {
+  items: Review[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
