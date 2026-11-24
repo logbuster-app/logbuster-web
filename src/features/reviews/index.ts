@@ -3,6 +3,8 @@ export { ReviewList } from "./components/ReviewList";
 export { ReviewCard } from "./components/ReviewCard";
 export { UserReviewHistory } from "./components/UserReviewHistory";
 export type { UserReviewHistoryProps } from "./components/UserReviewHistory";
+export { TimeMachine } from "./components/TimeMachine";
+export type { TimeMachineProps, TimeMachineArchetype } from "./components/TimeMachine";
 export { StarRating } from "./components/StarRating";
 export { ReviewSortSelector } from "./components/ReviewSortSelector";
 export { ReviewModal } from "./components/ReviewModal";
@@ -11,6 +13,18 @@ export { StarRatingInput } from "./components/StarRatingInput";
 export { HighlightPicker } from "./components/HighlightPicker";
 export { useMovieReviews } from "./hooks/useMovieReviews";
 export { useUserReviews } from "./hooks/useUserReviews";
+export {
+  useUserReviewsAll,
+  TIME_MACHINE_PAGE_SIZE,
+  TIME_MACHINE_MAX_PAGES,
+  TIME_MACHINE_MAX_REVIEWS,
+} from "./hooks/useUserReviewsAll";
+export {
+  computeTimeMachine,
+  OFFICIAL_HIGHLIGHT_ORDER,
+  MIN_TIME_MACHINE_REVIEWS,
+} from "./timeMachine";
+export type { TimeMachineStats } from "./timeMachine";
 export { useCreateReview } from "./hooks/useCreateReview";
 export { useMovieRating } from "./hooks/useMovieRating";
 export { useReviewSummary } from "./hooks/useReviewSummary";

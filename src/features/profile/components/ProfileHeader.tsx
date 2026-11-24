@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { parseUtcDate } from "@/shared/lib/format";
 import type { PublicProfile } from "../types";
@@ -10,6 +11,7 @@ import { Avatar } from "./Avatar";
 export type ProfileHeaderProps = {
   profile: PublicProfile;
   isOwner?: boolean;
+  showTimeMachine?: boolean;
   onEditClick?: () => void;
 };
 
@@ -27,6 +29,7 @@ function formatJoinDate(isoString: string): string {
 export function ProfileHeader({
   profile,
   isOwner = false,
+  showTimeMachine,
   onEditClick,
 }: ProfileHeaderProps) {
   const [failedBgUrl, setFailedBgUrl] = useState<string | null>(null);
@@ -34,6 +37,7 @@ export function ProfileHeader({
     profile.backgroundImageUrl && failedBgUrl !== profile.backgroundImageUrl,
   );
   const joinedLabel = formatJoinDate(profile.createdAt);
+  const canShowTimeMachine = showTimeMachine ?? Boolean(profile.archetype);
 
   return (
     <header className="space-y-5">
@@ -61,15 +65,26 @@ export function ProfileHeader({
           avatarId={profile.avatarId}
         />
 
-        {isOwner ? (
+        {canShowTimeMachine || isOwner ? (
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={onEditClick}
-              className="min-h-11 cursor-pointer rounded-card border-2 border-foreground bg-background px-5 text-sm font-bold uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background"
-            >
-              Editar perfil
-            </button>
+            {canShowTimeMachine ? (
+              <Link
+                href={`/users/${encodeURIComponent(profile.userId)}/retrospectiva`}
+                className="inline-flex min-h-11 items-center justify-center rounded-card bg-primary px-5 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-primary-foreground"
+              >
+                Máquina do Tempo
+              </Link>
+            ) : null}
+
+            {isOwner ? (
+              <button
+                type="button"
+                onClick={onEditClick}
+                className="min-h-11 cursor-pointer rounded-card border-2 border-foreground bg-background px-5 text-sm font-bold uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
+                Editar perfil
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
