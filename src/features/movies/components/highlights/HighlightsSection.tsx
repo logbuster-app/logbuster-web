@@ -24,7 +24,12 @@ export function HighlightsSection() {
   }
 
   const label = selected ? HIGHLIGHT_LABELS[selected] : "";
-  const totalHighlights = movies.reduce((sum, movie) => sum + movie.highlightCount, 0);
+
+  /** Legenda de cada card: quantas avaliações destacaram este aspecto naquele filme. */
+  function captionFor(movie: { highlightCount: number }) {
+    const noun = movie.highlightCount === 1 ? "destaque" : "destaques";
+    return `${movie.highlightCount} ${noun} em ${label}`;
+  }
 
   return (
     <section aria-labelledby="highlights-title" className="space-y-6">
@@ -54,12 +59,7 @@ export function HighlightsSection() {
           />
         )}
         {status === "success" && movies.length > 0 && (
-          <>
-            <p className="text-sm text-muted">
-              {totalHighlights} {totalHighlights === 1 ? "destaque" : "destaques"} em {label}
-            </p>
-            <MovieGrid movies={movies} />
-          </>
+          <MovieGrid movies={movies} getCaption={captionFor} />
         )}
       </div>
     </section>

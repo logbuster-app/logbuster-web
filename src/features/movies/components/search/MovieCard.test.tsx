@@ -34,4 +34,16 @@ describe("MovieCard", () => {
     expect(screen.getByText("Sem poster")).toBeInTheDocument();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
+
+  it("mostra a legenda opcional abaixo do ano quando informada", () => {
+    render(<MovieCard movie={movieWithPoster} caption="7 destaques em Fotografia" />);
+
+    expect(screen.getByText("7 destaques em Fotografia")).toBeInTheDocument();
+  });
+
+  it("sem legenda, o card fica igual ao da busca", () => {
+    const { container } = render(<MovieCard movie={movieWithPoster} />);
+
+    expect(container.querySelectorAll("p")).toHaveLength(1);
+  });
 });

@@ -44,10 +44,13 @@ describe("HighlightsSection", () => {
 
     expect(screen.getByRole("heading", { name: "Destaques da comunidade" })).toBeInTheDocument();
     expect(screen.getAllByRole("radio")).toHaveLength(6);
-    expect(await screen.findByText("7 destaques em Fotografia")).toBeInTheDocument();
+    const matrix = await screen.findByRole("link", { name: "Ver detalhes de Matrix" });
     expect(screen.getByRole("radio", { name: "Fotografia" })).toBeChecked();
-    expect(screen.getByText("Matrix")).toBeInTheDocument();
-    expect(screen.getByText("Pulp Fiction")).toBeInTheDocument();
+    // Cada card mostra a contagem do próprio filme, sem uma soma geral (RN-04).
+    expect(within(matrix).getByText("4 destaques em Fotografia")).toBeInTheDocument();
+    const pulp = screen.getByRole("link", { name: "Ver detalhes de Pulp Fiction" });
+    expect(within(pulp).getByText("3 destaques em Fotografia")).toBeInTheDocument();
+    expect(screen.queryByText("7 destaques em Fotografia")).not.toBeInTheDocument();
   });
 
   it("usa o singular na legenda quando há um único destaque", async () => {
