@@ -4,10 +4,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
 import { useMovieSearch } from "../../hooks/useMovieSearch";
+import { HighlightsSection } from "../highlights";
 import { MovieGrid } from "./MovieGrid";
 import { SearchBar } from "./SearchBar";
 
-/** Tela de busca: a consulta fica na URL (?q=) para ser compartilhável. */
+/**
+ * Tela inicial: a consulta fica na URL (?q=) para ser compartilhável. Sem busca digitada,
+ * mostra os "Destaques da comunidade" abaixo do campo de busca.
+ */
 export function MovieSearch() {
   const router = useRouter();
   const query = useSearchParams().get("q")?.trim() ?? "";
@@ -27,12 +31,7 @@ export function MovieSearch() {
         onSearch={(q) => router.push(`/?q=${encodeURIComponent(q)}`)}
       />
 
-      {status === "idle" && (
-        <StateMessage
-          title="Comece sua busca"
-          description="Digite o título de um filme acima para ver os resultados."
-        />
-      )}
+      {status === "idle" && <HighlightsSection />}
       {status === "loading" && <Spinner label="Buscando filmes" />}
       {status === "error" && (
         <StateMessage

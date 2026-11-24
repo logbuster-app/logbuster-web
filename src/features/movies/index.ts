@@ -5,11 +5,14 @@ export {
   MovieGrid,
   SearchBar,
 } from "./components/search";
+export { HighlightsSection } from "./components/highlights";
 export { MovieDetail } from "./components/detail";
 export { useMovieDetail } from "./hooks/useMovieDetail";
+export { useHighlightedMovies } from "./hooks/useHighlightedMovies";
 export type {
   MovieSummary,
   MovieSearchPage,
+  HighlightedMovie,
   MovieDetail as MovieDetailType,
   MovieDetail as MovieDetailData,
 } from "./types";

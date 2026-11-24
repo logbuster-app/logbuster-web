@@ -2,10 +2,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const nav = vi.hoisted(() => ({ push: vi.fn(), query: "" }));
+const nav = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), query: "", highlight: "" }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: nav.push }),
-  useSearchParams: () => new URLSearchParams(nav.query ? `q=${nav.query}` : ""),
+  useRouter: () => ({ push: nav.push, replace: nav.replace }),
+  useSearchParams: () =>
+    new URLSearchParams(
+      [nav.query && `q=${nav.query}`, nav.highlight && `destaque=${nav.highlight}`]
+        .filter(Boolean)
+        .join("&"),
+    ),
 }));
 
 import { MovieSearch } from "./MovieSearch";
@@ -25,19 +30,55 @@ function respond(body: unknown) {
 describe("MovieSearch", () => {
   beforeEach(() => {
     nav.push.mockClear();
+    nav.replace.mockClear();
     nav.query = "";
+    nav.highlight = "";
+    // Sem busca, a home também consulta os destaques; por padrão, nenhum filme destacado.
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(respond({ items: [] })));
   });
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("mostra o estado inicial sem consultar a API", () => {
-    const fetchMock = vi.fn();
+  it("sem busca, mostra os destaques da comunidade abaixo do campo de busca", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(respond({ items: [] }));
     vi.stubGlobal("fetch", fetchMock);
     render(<MovieSearch />);
 
-    expect(screen.getByText("Comece sua busca")).toBeInTheDocument();
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Buscar filmes")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Destaques da comunidade" }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText(/Ninguém destacou Trilha Sonora ainda/)).toBeInTheDocument();
+
+    const urls = fetchMock.mock.calls.map(([url]) => new URL(url));
+    expect(urls.every((url) => url.pathname.startsWith("/api/v1/highlights/"))).toBe(true);
+    expect(urls.some((url) => url.pathname === "/api/v1/movies")).toBe(false);
+  });
+
+  it("com busca ativa, a seção de destaques não aparece nem consulta a API de destaques", async () => {
+    nav.query = "filme";
+    const fetchMock = vi.fn().mockResolvedValue(respond(pageOf([item(1)], 1)));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<MovieSearch />);
+
+    expect(await screen.findByText("Filme 1")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Destaques da comunidade" }),
+    ).not.toBeInTheDocument();
+    const paths = fetchMock.mock.calls.map(([url]) => new URL(url).pathname);
+    expect(paths.some((path) => path.startsWith("/api/v1/highlights"))).toBe(false);
+  });
+
+  it("a busca continua funcionando quando os destaques falham", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
+    render(<MovieSearch />);
+
+    expect(await screen.findByText("Não foi possível carregar os destaques")).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("Buscar filmes"), "matrix");
+    await userEvent.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(nav.push).toHaveBeenCalledWith("/?q=matrix");
   });
 
   it("atualiza a URL ao buscar", async () => {

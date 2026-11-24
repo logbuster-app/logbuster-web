@@ -30,7 +30,7 @@ Diferenciais planejados que reforçam essa tese:
 
 ## Operating Context
 
-- Fluxo central: busca por título (`/?q=termo`, dados da OMDb) → ficha do filme (`/movies/[id]`) → lista de avaliações → modal "Avaliar filme".
+- Fluxo central: busca por título (`/?q=termo`; sem busca, a home mostra os Destaques da comunidade em `/?destaque=aspecto`) → ficha do filme (`/movies/[id]`) → lista de avaliações → modal "Avaliar filme".
 - Dados de filmes vêm da OMDb (chave só no servidor); avaliações, interações e nota média vêm do backend próprio FastAPI (`logbuster-api`, `/api/v1/...`).
 - `NEXT_PUBLIC_USE_API_MOCKS=true` roda toda a feature de avaliações, incluindo o resumo da comunidade por IA, com mocks locais (demo em `/movies/tt0133093`).
 - Interface e documentação em português (pt-BR); código em inglês. Documentação do time em `docs/` (Docsify).
@@ -45,6 +45,8 @@ Diferenciais planejados que reforçam essa tese:
 
 - Resumo da comunidade por IA na ficha do filme (3 ou mais avaliações; aviso "Gerado por IA" e data de geração; indisponibilidade não afeta a ficha).
 - Spoiler por IA: o backend analisa cada avaliação depois de publicada e marca `is_spoiler` (CR-02); não há consulta à IA no modal.
+
+- Destaques da comunidade na tela inicial: escolher um aspecto (Trilha Sonora, Fotografia, Roteiro, Atuação, Direção, Efeitos Especiais) e ver os filmes mais elogiados nele, com o aspecto na URL (`?destaque=`).
 
 **Planejado (decidido, ainda não implementado):**
 - Contas e login.

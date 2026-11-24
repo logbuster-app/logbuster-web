@@ -1,14 +1,11 @@
+import { HIGHLIGHT_LABELS, type Highlight } from "@/shared/lib/highlights";
+
 export type ReviewId = string;
 
 export type ReviewInteraction = "like" | "spoiler" | "well_argued";
 
-export type ReviewHighlight =
-  | "soundtrack"
-  | "cinematography"
-  | "screenplay"
-  | "acting"
-  | "direction"
-  | "visual_effects";
+/** Os nomes dos destaques vivem em `shared/lib/highlights` e são reexportados aqui. */
+export type ReviewHighlight = Highlight;
 
 export type ReviewSort =
   | "well_argued"
@@ -50,14 +47,7 @@ export type ReviewListPage = {
   sort: ReviewSort;
 };
 
-export const REVIEW_HIGHLIGHT_LABELS: Record<ReviewHighlight, string> = {
-  soundtrack: "Trilha Sonora",
-  cinematography: "Fotografia",
-  screenplay: "Roteiro",
-  acting: "Atuação",
-  direction: "Direção",
-  visual_effects: "Efeitos Especiais",
-};
+export const REVIEW_HIGHLIGHT_LABELS: Record<ReviewHighlight, string> = HIGHLIGHT_LABELS;
 
 export const REVIEW_SORT_OPTIONS: { value: ReviewSort; label: string }[] = [
   { value: "well_argued", label: "Mais bem argumentadas" },

@@ -2,7 +2,13 @@ import Link from "next/link";
 import type { MovieSummary } from "../../types";
 import { PosterImage } from "../PosterImage";
 
-export function MovieCard({ movie }: { movie: MovieSummary }) {
+export type MovieCardProps = {
+  movie: MovieSummary;
+  /** Linha extra abaixo do ano (ex.: "7 destaques em Fotografia"). Sem ela, o card fica como na busca. */
+  caption?: string;
+};
+
+export function MovieCard({ movie, caption }: MovieCardProps) {
   return (
     <Link
       href={`/movies/${movie.id}`}
@@ -22,6 +28,7 @@ export function MovieCard({ movie }: { movie: MovieSummary }) {
             {movie.title}
           </h2>
           <p className="mt-1 text-xs text-muted">{movie.year}</p>
+          {caption ? <p className="mt-1 text-xs text-muted">{caption}</p> : null}
         </div>
       </article>
     </Link>
