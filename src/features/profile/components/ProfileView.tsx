@@ -13,12 +13,14 @@ import { ProfileHeader } from "./ProfileHeader";
 export type ProfileViewProps = {
   userId: string;
   initialProfile?: PublicProfile | null;
+  reviewsCount?: number | null;
   children?: ReactNode;
 };
 
 export function ProfileView({
   userId,
   initialProfile,
+  reviewsCount,
   children,
 }: ProfileViewProps) {
   const { viewer } = useSession();
@@ -71,11 +73,17 @@ export function ProfileView({
 
   if (!profile) return null;
 
+  const showTimeMachine =
+    reviewsCount !== undefined && reviewsCount !== null
+      ? reviewsCount >= 3
+      : Boolean(profile.archetype);
+
   return (
     <div className="space-y-8">
       <ProfileHeader
         profile={profile}
         isOwner={isOwner}
+        showTimeMachine={showTimeMachine}
         onEditClick={() => setIsEditing(true)}
       />
 

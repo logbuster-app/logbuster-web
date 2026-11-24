@@ -45,4 +45,20 @@ describe("ProfileHeader", () => {
     await user.click(editButton);
     expect(onEditClick).toHaveBeenCalledTimes(1);
   });
+
+  it("exibe o botão Máquina do Tempo apenas a partir de 3 avaliações", () => {
+    const { rerender } = render(<ProfileHeader profile={baseProfile} />);
+    const link = screen.getByRole("link", { name: /máquina do tempo/i });
+    expect(link).toHaveAttribute("href", "/users/u1/retrospectiva");
+
+    rerender(
+      <ProfileHeader
+        profile={{ ...baseProfile, archetype: null }}
+        showTimeMachine={false}
+      />,
+    );
+    expect(
+      screen.queryByRole("link", { name: /máquina do tempo/i }),
+    ).not.toBeInTheDocument();
+  });
 });
