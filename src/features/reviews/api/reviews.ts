@@ -8,12 +8,14 @@ import type {
   ReviewInteraction,
   ReviewListPage,
   ReviewSort,
+  UserReviewListPage,
 } from "../types";
 import {
   type InteractionToggleResult,
   createReviewMock,
   fetchMovieRatingMock,
   fetchReviewsMock,
+  fetchUserReviewsMock,
   toggleInteractionMock,
 } from "./reviews.mock";
 
@@ -40,6 +42,13 @@ export type BackendReviewListResponse = {
   page: number;
   page_size: number;
   sort: ReviewSort;
+};
+
+export type BackendUserReviewListResponse = {
+  items: BackendReviewItem[];
+  total: number;
+  page: number;
+  page_size: number;
 };
 
 export type BackendInteractionResponse = {
@@ -174,6 +183,52 @@ export async function fetchMovieReviews(
     page: Number(data.page ?? page),
     pageSize: Number(data.page_size ?? pageSize),
     sort: data.sort ?? sort,
+  };
+}
+
+export type FetchUserReviewsOptions = {
+  page?: number;
+  pageSize?: number;
+  visitorId?: string;
+};
+
+export async function fetchUserReviews(
+  userId: string,
+  options?: number | FetchUserReviewsOptions,
+  signal?: AbortSignal,
+): Promise<UserReviewListPage> {
+  const normalized: FetchUserReviewsOptions =
+    typeof options === "number" ? { page: options } : (options ?? {});
+  const page = normalized.page ?? 1;
+  const pageSize = normalized.pageSize ?? 10;
+  const trimmedId = userId.trim();
+
+  if (env.useApiMocks) {
+    return fetchUserReviewsMock(trimmedId, {
+      page,
+      pageSize,
+      visitorId: normalized.visitorId,
+    });
+  }
+
+  const data = await backendApi.request<BackendUserReviewListResponse>(
+    `/api/v1/users/${encodeURIComponent(trimmedId)}/reviews`,
+    {
+      query: { page, page_size: pageSize },
+      headers: normalized.visitorId
+        ? { "X-Visitor-Id": normalized.visitorId }
+        : undefined,
+      signal,
+      networkMessage: "Não foi possível conectar ao servidor para carregar o histórico.",
+      errorMessage: "Não foi possível carregar o histórico de avaliações.",
+    },
+  );
+
+  return {
+    items: (data.items ?? []).map(toReview),
+    total: Number(data.total ?? 0),
+    page: Number(data.page ?? page),
+    pageSize: Number(data.page_size ?? pageSize),
   };
 }
 

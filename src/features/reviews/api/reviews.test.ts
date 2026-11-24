@@ -12,6 +12,7 @@ import {
   createReview,
   fetchMovieRating,
   fetchMovieReviews,
+  fetchUserReviews,
   toReview,
   toggleReviewInteraction,
 } from "./reviews";
@@ -351,5 +352,78 @@ describe("toggleReviewInteraction", () => {
     const result = await toggleReviewInteraction("r1", "like", "v1");
     expect(spy).toHaveBeenCalledWith("r1", "like", "v1");
     expect(result.active).toBe(true);
+  });
+});
+
+describe("fetchUserReviews", () => {
+  beforeEach(() => {
+    envMock.useApiMocks = false;
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("busca o histórico paginado do usuário e converte itens via toReview", async () => {
+    const fetchMock = mockFetch({
+      items: [
+        {
+          id: "r1",
+          movie_id: "tt0133093",
+          author_name: "Ana",
+          rating: 4.5,
+          content: "Excelente montagem.",
+          is_spoiler: false,
+          highlights: ["direction"],
+          counts: { like: 2, spoiler: 0, well_argued: 4 },
+          viewer_interactions: [],
+          created_at: "2026-11-20T12:00:00Z",
+        },
+      ],
+      total: 1,
+      page: 2,
+      page_size: 10,
+    });
+
+    const page = await fetchUserReviews("user-1", 2);
+    const [rawUrl] = fetchMock.mock.calls[0];
+    const url = new URL(rawUrl);
+
+    expect(url.pathname).toBe("/api/v1/users/user-1/reviews");
+    expect(url.searchParams.get("page")).toBe("2");
+    expect(url.searchParams.get("page_size")).toBe("10");
+    expect(page).toEqual({
+      items: [
+        {
+          id: "r1",
+          movieId: "tt0133093",
+          authorName: "Ana",
+          rating: 4.5,
+          content: "Excelente montagem.",
+          isSpoiler: false,
+          highlights: ["direction"],
+          counts: { like: 2, spoiler: 0, wellArgued: 4 },
+          viewerInteractions: [],
+          createdAt: "2026-11-20T12:00:00Z",
+        },
+      ],
+      total: 1,
+      page: 2,
+      pageSize: 10,
+    });
+  });
+
+  it("delega para fetchUserReviewsMock quando env.useApiMocks é true", async () => {
+    envMock.useApiMocks = true;
+    const spy = vi.spyOn(reviewsMockModule, "fetchUserReviewsMock").mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      page: 1,
+      pageSize: 50,
+    });
+
+    await fetchUserReviews("user-1", { page: 1, pageSize: 50 });
+    expect(spy).toHaveBeenCalledWith("user-1", { page: 1, pageSize: 50, visitorId: undefined });
   });
 });

@@ -4,6 +4,7 @@ import type {
   ReviewInteraction,
   ReviewListPage,
   ReviewSort,
+  UserReviewListPage,
 } from "../types";
 
 export type InteractionToggleResult = {
@@ -100,7 +101,87 @@ const INITIAL_MOCK_REVIEWS: Review[] = [
     viewerInteractions: [],
     createdAt: "2026-11-09T12:00:00Z",
   },
+  {
+    id: "d1000000-0000-4000-8000-000000000001",
+    movieId: "tt0317248",
+    authorName: "Helena Glauber",
+    rating: 5.0,
+    content:
+      "Montagem elétrica e fotografia solar que transformaram a gramática do cinema brasileiro contemporâneo.",
+    isSpoiler: false,
+    highlights: ["cinematography", "direction"],
+    counts: {
+      like: 11,
+      spoiler: 0,
+      wellArgued: 7,
+    },
+    viewerInteractions: [],
+    createdAt: "2026-11-20T19:00:00Z",
+  },
+  {
+    id: "d1000000-0000-4000-8000-000000000002",
+    movieId: "tt0140888",
+    authorName: "Helena Glauber",
+    rating: 4.5,
+    content:
+      "Atuações memoráveis na estrada entre o Rio e o sertão, com roteiro seco e profundamente humano.",
+    isSpoiler: false,
+    highlights: ["acting", "screenplay"],
+    counts: {
+      like: 6,
+      spoiler: 0,
+      wellArgued: 4,
+    },
+    viewerInteractions: [],
+    createdAt: "2026-11-18T15:30:00Z",
+  },
+  {
+    id: "d1000000-0000-4000-8000-000000000003",
+    movieId: "tt2762506",
+    authorName: "Helena Glauber",
+    rating: 4.5,
+    content:
+      "No desfecho em que o povoado enterra os invasores sob o museu vivo, o som e o enquadramento fecham a alegoria.",
+    isSpoiler: true,
+    highlights: ["soundtrack", "cinematography"],
+    counts: {
+      like: 8,
+      spoiler: 2,
+      wellArgued: 5,
+    },
+    viewerInteractions: [],
+    createdAt: "2026-11-15T21:10:00Z",
+  },
+  {
+    id: "d1000000-0000-4000-8000-000000000004",
+    movieId: "tt12263384",
+    authorName: "Helena Glauber",
+    rating: 5.0,
+    content:
+      "Fotografia em película e direção contida sustentam o silêncio da casa como memória coletiva.",
+    isSpoiler: false,
+    highlights: ["cinematography", "acting"],
+    counts: {
+      like: 14,
+      spoiler: 0,
+      wellArgued: 9,
+    },
+    viewerInteractions: [],
+    createdAt: "2026-11-22T20:00:00Z",
+  },
 ];
+
+const MOCK_USER_REVIEW_IDS: Record<string, string[]> = {
+  "11111111-1111-4111-8111-111111111111": [
+    "d1000000-0000-4000-8000-000000000004",
+    "d1000000-0000-4000-8000-000000000001",
+    "d1000000-0000-4000-8000-000000000002",
+    "d1000000-0000-4000-8000-000000000003",
+  ],
+  "22222222-2222-4222-8222-222222222222": [
+    "c4f7d9d2-9d4e-4b3a-8f55-1f2e3d4c5b6a",
+  ],
+};
 
 let mockReviews: Review[] = JSON.parse(JSON.stringify(INITIAL_MOCK_REVIEWS));
 const activeInteractions = new Set<string>(); // chave: `${reviewId}:${visitorId}:${type}`
@@ -237,6 +318,50 @@ export async function fetchReviewsMock(
     page,
     pageSize,
     sort,
+  };
+}
+
+export async function fetchUserReviewsMock(
+  userId: string,
+  options?: {
+    page?: number;
+    pageSize?: number;
+    visitorId?: string;
+  },
+): Promise<UserReviewListPage> {
+  const page = options?.page ?? 1;
+  const pageSize = options?.pageSize ?? 10;
+  const visitorId = options?.visitorId;
+  const reviewIds = MOCK_USER_REVIEW_IDS[userId] ?? [];
+
+  const filtered = mockReviews
+    .filter((review) => reviewIds.includes(review.id))
+    .map((review) => {
+      const viewerInteractions: ReviewInteraction[] = [];
+      if (visitorId) {
+        (["like", "spoiler", "well_argued"] as const).forEach((t) => {
+          if (activeInteractions.has(`${review.id}:${visitorId}:${t}`)) {
+            viewerInteractions.push(t);
+          }
+        });
+      }
+      return {
+        ...review,
+        viewerInteractions,
+      };
+    })
+    .sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  const start = (page - 1) * pageSize;
+  const paginated = filtered.slice(start, start + pageSize);
+
+  return {
+    items: paginated,
+    total: filtered.length,
+    page,
+    pageSize,
   };
 }
 

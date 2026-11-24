@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createReviewMock,
   fetchReviewsMock,
+  fetchUserReviewsMock,
   resetMockReviews,
   toggleInteractionMock,
 } from "./reviews.mock";
@@ -155,5 +156,19 @@ describe("reviews.mock", () => {
     await expect(
       toggleInteractionMock("inexistente-id", "like", visitorId),
     ).rejects.toThrow("Avaliação não encontrada");
+  });
+
+  it("lista histórico mockado do usuário da mais recente para a mais antiga", async () => {
+    const page = await fetchUserReviewsMock("11111111-1111-4111-8111-111111111111", {
+      page: 1,
+      pageSize: 2,
+      visitorId,
+    });
+
+    expect(page.total).toBe(4);
+    expect(page.items).toHaveLength(2);
+    expect(
+      new Date(page.items[0].createdAt).getTime(),
+    ).toBeGreaterThanOrEqual(new Date(page.items[1].createdAt).getTime());
   });
 });

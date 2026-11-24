@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar 5 — Ingresso">
+  <rect width="128" height="128" fill="#7E2214" />
+  <polygon points="14,36 114,36 114,54 104,64 114,74 114,92 14,92 14,74 24,64 14,54" fill="#EDE3CE" />
+  <rect x="36" y="44" width="6" height="12" fill="#14100E" />
+  <rect x="36" y="60" width="6" height="12" fill="#14100E" />
+  <rect x="36" y="76" width="6" height="10" fill="#14100E" />
+  <rect x="52" y="48" width="48" height="12" fill="#E8452C" />
+  <rect x="52" y="68" width="34" height="10" fill="#14100E" />
+</svg>

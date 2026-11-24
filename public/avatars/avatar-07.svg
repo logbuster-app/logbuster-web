@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar 7 — Megafone">
+  <rect width="128" height="128" fill="#271F1A" />
+  <polygon points="20,54 84,28 84,92 20,66" fill="#E8452C" />
+  <rect x="14" y="50" width="10" height="20" fill="#EDE3CE" />
+  <polygon points="30,70 46,74 40,104 26,100" fill="#EDE3CE" />
+  <rect x="94" y="36" width="18" height="8" fill="#EDE3CE" />
+  <rect x="96" y="56" width="20" height="8" fill="#EDE3CE" />
+  <rect x="94" y="76" width="18" height="8" fill="#EDE3CE" />
+</svg>
