@@ -26,6 +26,7 @@ export {
 } from "./timeMachine";
 export type { TimeMachineStats } from "./timeMachine";
 export { useCreateReview } from "./hooks/useCreateReview";
+export { useSpoilerAnalysis } from "./hooks/useSpoilerAnalysis";
 export { useMovieRating } from "./hooks/useMovieRating";
 export { useReviewSummary } from "./hooks/useReviewSummary";
 export { validateReview, REVIEW_LIMITS } from "./validation";
@@ -33,6 +34,7 @@ export type { ReviewFormValues, ReviewValidationResult } from "./validation";
 export {
   createReview,
   fetchMovieRating,
+  fetchReview,
   fetchMovieReviews,
   fetchUserReviews,
   toggleReviewInteraction,

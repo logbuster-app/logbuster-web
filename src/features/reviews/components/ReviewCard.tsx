@@ -3,6 +3,7 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { CheckIcon, PlusIcon, ThumbUpIcon } from "@/shared/components/Icons";
+import { Spinner } from "@/shared/components/Spinner";
 import { WarningIcon } from "@/shared/components/WarningIcon";
 import {
   REVIEW_HIGHLIGHT_LABELS,
@@ -20,6 +21,8 @@ export type ReviewCardProps = {
   isLeading?: boolean;
   /** Conteúdo opcional para identificar o filme avaliado (ex.: no histórico de perfil). */
   movieSlot?: React.ReactNode;
+  /** A IA está analisando esta avaliação recém-publicada em busca de spoiler (CR-02). */
+  analyzingSpoiler?: boolean;
 };
 
 export function ReviewCard({
@@ -28,6 +31,7 @@ export function ReviewCard({
   isInteracting = false,
   isLeading = false,
   movieSlot,
+  analyzingSpoiler = false,
 }: ReviewCardProps) {
   const isSpoilerProtected =
     review.isSpoiler || review.counts.spoiler >= SPOILER_VOTE_THRESHOLD;
@@ -137,8 +141,18 @@ export function ReviewCard({
           </div>
         ) : null}
 
-        {/* Conteúdo com proteção de spoiler (RN-03) */}
-        {isSpoilerProtected && !revealed ? (
+        {/* Conteúdo com proteção de spoiler (RN-03). Enquanto a IA verifica a avaliação
+            recém-publicada (CR-02), o texto fica oculto: nada de spoiler antes do veredito. */}
+        {analyzingSpoiler ? (
+          <div className="space-y-2 border-2 border-border bg-surface p-4">
+            <div className="text-sm font-bold uppercase tracking-wide">
+              <Spinner label="Verificando spoiler com IA" />
+            </div>
+            <p className="text-sm text-muted">
+              O texto aparece assim que a verificação terminar.
+            </p>
+          </div>
+        ) : isSpoilerProtected && !revealed ? (
           <div className="space-y-2 border-2 border-warning bg-surface p-4">
             <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-warning">
               <WarningIcon className="size-5" />

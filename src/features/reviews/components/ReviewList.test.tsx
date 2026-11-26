@@ -176,6 +176,44 @@ describe("ReviewList", () => {
     expect(screen.queryByText(/nota média da comunidade/i)).not.toBeInTheDocument();
   });
 
+  it("depois de publicar, mostra a verificação da IA e oculta a avaliação se ela marcar spoiler (CR-02)", async () => {
+    const user = userEvent.setup();
+    const createdReview: Review = {
+      ...sampleReview,
+      id: "r3",
+      authorName: "Marina",
+      rating: 4,
+      isSpoiler: false,
+      content: "O Cypher trai a tripulação por um bife no final.",
+    };
+    vi.spyOn(reviewsApi, "fetchMovieReviews").mockResolvedValueOnce(samplePage);
+    vi.spyOn(reviewsApi, "createReview").mockResolvedValueOnce(createdReview);
+    vi.spyOn(reviewsApi, "fetchReview").mockResolvedValue({ ...createdReview, isSpoiler: true });
+
+    render(
+      <SessionProvider>
+        <MovieRatingProvider>
+          <ReviewList movieId="tt0133093" />
+        </MovieRatingProvider>
+      </SessionProvider>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Avaliar filme" }));
+    await user.click(screen.getByRole("button", { name: "4,0 de 5 estrelas" }));
+    await user.type(screen.getByLabelText(/sua análise/i), createdReview.content);
+    await user.click(screen.getByRole("button", { name: "Publicar avaliação" }));
+
+    expect(await screen.findByText(/Verificando spoiler com IA/)).toBeInTheDocument();
+    expect(screen.queryByText(createdReview.content)).not.toBeInTheDocument();
+    await waitFor(
+      () => expect(screen.queryByText(/Verificando spoiler com IA/)).not.toBeInTheDocument(),
+      { timeout: 4000 },
+    );
+    // A IA marcou: o texto continua oculto, agora atrás do aviso de spoiler.
+    expect(screen.queryByText(createdReview.content)).not.toBeInTheDocument();
+    expect(screen.getAllByText("Esta avaliação contém spoiler").length).toBeGreaterThan(0);
+  });
+
   it("exibe aviso de erro quando ocorre falha ao votar", async () => {
     const user = userEvent.setup();
     vi.spyOn(reviewsApi, "fetchMovieReviews").mockResolvedValueOnce(samplePage);

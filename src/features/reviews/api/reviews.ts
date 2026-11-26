@@ -97,6 +97,18 @@ export async function createReview(input: CreateReviewInput): Promise<Review> {
   return toReview(data);
 }
 
+/**
+ * Lê uma avaliação pelo id (GET /api/v1/reviews/{id}). Usado para acompanhar a análise
+ * de spoiler que o backend faz em segundo plano depois de publicar (CR-02).
+ */
+export async function fetchReview(reviewId: string, signal?: AbortSignal): Promise<Review> {
+  const data = await backendApi.request<BackendReviewItem>(
+    `/api/v1/reviews/${encodeURIComponent(reviewId)}`,
+    { signal, networkMessage: "Não foi possível consultar a avaliação." },
+  );
+  return toReview(data);
+}
+
 export async function fetchMovieRating(
   movieId: string,
   signal?: AbortSignal,

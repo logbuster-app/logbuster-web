@@ -7,6 +7,7 @@ import { Spinner } from "@/shared/components/Spinner";
 import { StateMessage } from "@/shared/components/StateMessage";
 import { useMovieRating } from "../hooks/useMovieRating";
 import { useMovieReviews } from "../hooks/useMovieReviews";
+import { useSpoilerAnalysis } from "../hooks/useSpoilerAnalysis";
 import type { Review } from "../types";
 import { ReviewCard } from "./ReviewCard";
 import { ReviewModal } from "./ReviewModal";
@@ -30,12 +31,15 @@ export function ReviewList({ movieId }: ReviewListProps) {
     changeSort,
     toggleVote,
     addReview,
+    replaceReview,
   } = useMovieReviews(movieId);
+  const spoilerAnalysis = useSpoilerAnalysis(replaceReview);
 
   const { refresh: refreshRating } = useMovieRating(movieId);
 
   function handleReviewCreated(review: Review) {
     addReview(review);
+    spoilerAnalysis.track(review);
     setIsModalOpen(false);
     refreshRating();
   }
@@ -123,6 +127,7 @@ export function ReviewList({ movieId }: ReviewListProps) {
               isLeading={sort === "well_argued" && index === 0 && review.counts.wellArgued > 0}
               onToggleInteraction={toggleVote}
               isInteracting={interactingReviewId === review.id}
+              analyzingSpoiler={spoilerAnalysis.isAnalyzing(review.id)}
             />
           ))}
         </div>

@@ -114,6 +114,18 @@ export function useMovieReviews(
     [trimmedId, sort, version],
   );
 
+  /** Troca uma avaliação já listada pela versão atualizada (ex.: marcada como spoiler pela IA). */
+  const replaceReview = useCallback((review: Review) => {
+    setQueryResult((previous) =>
+      previous
+        ? {
+            ...previous,
+            items: previous.items.map((item) => (item.id === review.id ? review : item)),
+          }
+        : previous,
+    );
+  }, []);
+
   const toggleVote = useCallback(
     async (reviewId: string, type: ReviewInteraction) => {
       setVotingError(null);
@@ -162,5 +174,6 @@ export function useMovieReviews(
     toggleVote,
     reload,
     addReview,
+    replaceReview,
   };
 }

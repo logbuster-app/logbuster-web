@@ -157,4 +157,26 @@ describe("ReviewCard", () => {
     expect(screen.getByText("Thyago")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Thyago" })).not.toBeInTheDocument();
   });
+
+  it("mostra o aviso de verificação enquanto a IA analisa a avaliação", () => {
+    render(<ReviewCard review={baseReview} analyzingSpoiler />);
+
+    expect(screen.getByRole("status")).toHaveTextContent("Verificando spoiler com IA");
+    // O texto não pode aparecer antes do veredito da IA.
+    expect(screen.queryByText(baseReview.content)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /mostrar análise/i })).not.toBeInTheDocument();
+  });
+
+  it("quando a verificação termina sem spoiler, o texto aparece", () => {
+    const { rerender } = render(<ReviewCard review={baseReview} analyzingSpoiler />);
+    rerender(<ReviewCard review={baseReview} analyzingSpoiler={false} />);
+
+    expect(screen.getByText(baseReview.content)).toBeInTheDocument();
+  });
+
+  it("sem análise em andamento, não mostra o aviso", () => {
+    render(<ReviewCard review={baseReview} />);
+
+    expect(screen.queryByText(/Verificando spoiler com IA/)).not.toBeInTheDocument();
+  });
 });

@@ -12,6 +12,7 @@ import {
   createReview,
   fetchMovieRating,
   fetchMovieReviews,
+  fetchReview,
   fetchUserReviews,
   toReview,
   toggleReviewInteraction,
@@ -428,5 +429,35 @@ describe("fetchUserReviews", () => {
 
     await fetchUserReviews("user-1", { page: 1, pageSize: 50 });
     expect(spy).toHaveBeenCalledWith("user-1", { page: 1, pageSize: 50, visitorId: undefined });
+  });
+});
+
+describe("fetchReview", () => {
+  it("consulta GET /api/v1/reviews/{id} e converte para o modelo de domínio", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({
+          id: "r9",
+          movie_id: "tt0133093",
+          author_name: "Marina",
+          author_id: "u1",
+          rating: 4,
+          content: "Texto",
+          is_spoiler: true,
+          highlights: [],
+          counts: { like: 0, spoiler: 0, well_argued: 0 },
+          viewer_interactions: [],
+          created_at: "2026-11-26T12:00:00Z",
+        }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const review = await fetchReview("r9");
+
+    expect(fetchMock.mock.calls[0][0]).toContain("/api/v1/reviews/r9");
+    expect(review).toMatchObject({ id: "r9", isSpoiler: true, authorId: "u1" });
+    vi.unstubAllGlobals();
   });
 });
