@@ -23,6 +23,8 @@ export type BackendReviewItem = {
   id: string;
   movie_id: string;
   author_name: string;
+  /** Conta do autor (nulo em avaliações anônimas antigas). */
+  author_id?: string | null;
   rating: number;
   content: string;
   is_spoiler: boolean;
@@ -123,6 +125,7 @@ export function toReview(item: BackendReviewItem): Review {
     id: String(item.id),
     movieId: item.movie_id,
     authorName: item.author_name,
+    authorId: item.author_id ?? null,
     rating: item.rating,
     content: item.content,
     isSpoiler: Boolean(item.is_spoiler),

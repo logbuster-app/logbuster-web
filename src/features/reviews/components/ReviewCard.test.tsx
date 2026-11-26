@@ -143,4 +143,18 @@ describe("ReviewCard", () => {
     expect(screen.getByText(/4,5/)).toBeInTheDocument();
     expect(screen.getByText("Esta avaliação contém spoiler")).toBeInTheDocument();
   });
+
+  it("o nome do autor leva ao perfil público quando a avaliação tem conta", () => {
+    render(<ReviewCard review={{ ...baseReview, authorId: "user-42" }} />);
+
+    const link = screen.getByRole("link", { name: "Thyago" });
+    expect(link).toHaveAttribute("href", "/users/user-42");
+  });
+
+  it("avaliação anônima antiga mostra o nome sem link", () => {
+    render(<ReviewCard review={{ ...baseReview, authorId: null }} />);
+
+    expect(screen.getByText("Thyago")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Thyago" })).not.toBeInTheDocument();
+  });
 });

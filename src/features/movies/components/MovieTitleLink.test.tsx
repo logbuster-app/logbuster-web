@@ -43,4 +43,13 @@ describe("MovieTitleLink", () => {
     expect(link).toHaveAttribute("href", "/movies/tt9999999");
     expect(link).toHaveClass("custom-link");
   });
+
+  it("enquanto carrega, não mostra o código do filme no lugar do título", () => {
+    mockGetMovieById.mockReturnValueOnce(new Promise(() => undefined));
+
+    render(<MovieTitleLink movieId="tt0133093" />);
+
+    expect(screen.queryByText("tt0133093")).not.toBeInTheDocument();
+    expect(screen.getByText("Carregando título do filme")).toBeInTheDocument();
+  });
 });

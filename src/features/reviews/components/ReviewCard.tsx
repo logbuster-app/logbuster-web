@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React, { useState } from "react";
 import { CheckIcon, PlusIcon, ThumbUpIcon } from "@/shared/components/Icons";
 import { WarningIcon } from "@/shared/components/WarningIcon";
@@ -102,9 +103,18 @@ export function ReviewCard({
         {/* Cabeçalho da avaliação: autor, data e estrelas */}
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="flex flex-wrap items-baseline gap-x-3">
-            <span className="font-bold uppercase tracking-wide text-foreground">
-              {review.authorName}
-            </span>
+            {review.authorId ? (
+              <Link
+                href={`/users/${encodeURIComponent(review.authorId)}`}
+                className="font-bold uppercase tracking-wide text-foreground underline-offset-4 hover:text-primary-text hover:underline"
+              >
+                {review.authorName}
+              </Link>
+            ) : (
+              <span className="font-bold uppercase tracking-wide text-foreground">
+                {review.authorName}
+              </span>
+            )}
             <time dateTime={review.createdAt} className="text-sm text-muted">
               {formattedDate}
             </time>

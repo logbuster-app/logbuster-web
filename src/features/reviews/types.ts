@@ -18,6 +18,8 @@ export type Review = {
   id: ReviewId;
   movieId: string;
   authorName: string;
+  /** Conta do autor, para o link ao perfil. Nulo em avaliações anônimas antigas. */
+  authorId?: string | null;
   rating: number; // 0.5 a 5.0
   content: string;
   isSpoiler: boolean;
